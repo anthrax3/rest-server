@@ -1,6 +1,6 @@
 'use strict'
 
-const Model = use('Model')
+const Model = require('./Model')
 
 module.exports = class Category extends Model {
 
@@ -8,26 +8,16 @@ module.exports = class Category extends Model {
     return '分类'
   }
 
-  static get fields() {
+  static async fields() {
     return {
       _id: { sortable: true },
       parent_id: {
         label: '上级分类', sortable: true, type: 'select', ref: "parent.name",
-        
+        options: await Category.pair('id', 'name')
       },
       name: { label: '名称' },
       icon: { label: '图标' },
       sort: { label: '排序', sortable: true },
-    }
-  }
-
-  static boot() {
-    super.boot()
-  }
-
-  static async choices() {
-    return {
-      parent_id: await Category.pair('id', 'name')
     }
   }
 

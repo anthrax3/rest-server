@@ -1,6 +1,6 @@
 'use strict'
 
-const Model = use('Model')
+const Model = require('./Model')
 
 module.exports = class News extends Model {
 
@@ -8,7 +8,7 @@ module.exports = class News extends Model {
     return '新闻'
   }
 
-  static get fields() {
+  static async fields() {
     return {
       _id: { sortable: true },
       title: { label: '标题', sortable: true},

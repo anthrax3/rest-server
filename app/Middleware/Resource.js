@@ -17,6 +17,15 @@ class Resource {
       if (typeof query === 'string') {
         query = JSON.parse(query)
       }
+
+      Model.getChoices = async () => {
+        if (Model.choices) {
+          let choices = await Model.choices()
+          return _.mapValues(choices, field => _.map(field, (text , value) => ({text, value})))
+        }
+        return {}
+      }
+
       ctx.query = query
       ctx.resource = resource
       ctx.Model = Model

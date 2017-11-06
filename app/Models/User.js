@@ -1,12 +1,12 @@
 'use strict'
 
-const Model = use('Model')
+const Model = require('./Model')
 
 class User extends Model {
   static get label() {
     return '用户'
   }
-  static get fields() {
+  static async fields() {
     return {
       _id: { sortable: true },
       mobile: { label: '手机号1' },
@@ -20,6 +20,9 @@ class User extends Model {
   }
 
   getAvatar(val) {
+    if (val.match(/^http/i)) {
+      return val
+    }
     return use('Env').get('UPLOAD_URI') + val
   }
 
