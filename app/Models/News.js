@@ -15,7 +15,7 @@ module.exports = class News extends Model {
       image: { label: '图片', type: 'image' },
       source: { label: '来源' },
 
-      description: { label: '描述', type: 'textarea', listable: false },
+      description: { label: '描述', type: 'html', listable: false },
       content: { label: '详情', type: 'html', listable: false },
 
       created_at: { label: '创建时间' },

@@ -39,6 +39,10 @@ class Model extends BaseModel {
   static async labels() {
     return _.mapValues(await this.fields(), 'label')
   }
+
+  rules() {
+    return {}
+  }
 }
 
 module.exports = Model
