@@ -13,11 +13,17 @@ module.exports = class Category extends Model {
       _id: { sortable: true },
       parent_id: {
         label: '上级分类', sortable: true, type: 'select', ref: "parent.name",
-        options: await Category.pair('id', 'name')
+        options: await Category.options('id', 'name'), format: 'Number'
       },
       name: { label: '名称' },
       icon: { label: '图标' },
-      sort: { label: '排序', sortable: true },
+      sort: { label: '排序', sortable: true, type: 'number', format: 'Number' },
+    }
+  }
+
+  rules() {
+    return {
+      name: 'required'
     }
   }
 

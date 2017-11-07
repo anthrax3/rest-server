@@ -1,6 +1,8 @@
 'use strict'
 
 const Model = require('./Model')
+const User = require('./User')
+const Course = require('./Course')
 
 module.exports = class Post extends Model {
   static get label () {
@@ -11,11 +13,11 @@ module.exports = class Post extends Model {
       _id: { sortable: true },
       user_id: { 
         label: '用户', type: 'select2', ref: "user.username", 
-        options: await use('App/Models/User').pair('id', 'username') 
+        options: await User.options('id', 'username') 
       },
       course_id: { 
         label: '专辑', type: 'select2', ref: "course.title",
-        options: await use('App/Models/Course').pair('id', 'title'),
+        options: await Course.options('id', 'title'),
       },
       title: { label: '标题' },
       
