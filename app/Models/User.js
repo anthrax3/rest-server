@@ -1,6 +1,7 @@
 'use strict'
 
 const Model = require('./Model')
+const Config = use('Config')
 
 class User extends Model {
   static get label() {
@@ -23,7 +24,7 @@ class User extends Model {
     if (val.match(/^http/i)) {
       return val
     }
-    return use('Env').get('UPLOAD_URI') + val
+    return Config.get('api.upload.url') + '/' + val
   }
 
   static boot() {

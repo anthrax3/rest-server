@@ -2,6 +2,7 @@ const Route = use('Route')
 
 Route.group(() => {
 
+  Route.post('upload', 'ResourceController.upload')
   Route.any('ueditor', 'UEditorController.handle')
 
   Route.get(':resource/grid', 'ResourceController.grid')

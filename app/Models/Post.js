@@ -3,6 +3,7 @@
 const Model = require('./Model')
 const User = require('./User')
 const Course = require('./Course')
+const Config = use('Config')
 
 module.exports = class Post extends Model {
   static get label () {
@@ -23,13 +24,19 @@ module.exports = class Post extends Model {
       
       image: { label: '图片', type: 'image' },
       
-      description: { label: '描述', type: 'html', listable: false },
+      description: { label: '描述', type: 'textarea', listable: false },
       content: { label: '详情', type: 'html', listable: false },
-      voice: {type: 'audio', listable: false},
-
+      voice: {label: '语音', type: 'audio', listable: false},
       is_free: {label: '是否免费', type: 'switch'},
       created_at: { label: '创建时间' },
     }
+  }
+
+  getVoice(val){
+    if (val.match(/^http/i)) {
+      return val
+    }
+    return Config.get('api.upload.url') + '/' + val
   }
 
   course(){

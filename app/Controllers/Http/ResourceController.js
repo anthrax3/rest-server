@@ -1,6 +1,9 @@
 'use strict'
 
 const _ = require('lodash')
+const Helpers = use('Helpers')
+const Config = use('Config')
+const fs = require('fs')
 
 module.exports = class ResourceController {
 
@@ -45,4 +48,27 @@ module.exports = class ResourceController {
   async choices({ request }) {
 
   }
+
+  async upload({ request, auth, Model, model, validate }) {
+    const file = request.file('file', {
+      types: ['image', 'audio', 'video'],
+      size: '100mb'
+    })
+    let fileData = file.toJSON()
+    const uploadPath = Config.get('api.upload.path')
+    const filePath = uploadPath + '/' + fileData.clientName
+    const fileUrl = Config.get('api.upload.url') + '/' + fileData.clientName
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath)
+    }
+    await file.move(uploadPath)
+    if (!file.moved()) {
+      return file.error()
+    }
+    return {
+      url: fileUrl
+    }
+  }
+
 }

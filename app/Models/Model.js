@@ -11,12 +11,12 @@ class Model extends BaseModel {
     let data = await this.select([lhs, rhs]).fetch()
     data = _.map(data.toJSON(), v => {
       return {
-        text: v[rhs],
+        label: v[rhs],
         value: v[lhs],
       }
     })
     data.unshift({
-      text: '请选择...',
+      label: '请选择...',
       value: null,
     })
     return data
