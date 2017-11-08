@@ -11,16 +11,16 @@ module.exports = class Post extends Model {
   }
   static async fields() {
     return {
-      _id: { sortable: true },
+      _id: { sortable: true, searchable: true },
       user_id: { 
         label: '用户', type: 'select2', ref: "user.username", 
-        options: await User.options('id', 'username') 
+        options: await User.options('id', 'username'), searchable: true
       },
       course_id: { 
         label: '专辑', type: 'select2', ref: "course.title",
-        options: await Course.options('id', 'title'),
+        options: await Course.options('id', 'title'), searchable: true
       },
-      title: { label: '标题' },
+      title: { label: '标题', searchable: true },
       
       image: { label: '图片', type: 'image' },
       
@@ -33,10 +33,7 @@ module.exports = class Post extends Model {
   }
 
   getVoice(val){
-    if (val.match(/^http/i)) {
-      return val
-    }
-    return Config.get('api.upload.url') + '/' + val
+    return this.uploadUri(val)
   }
 
   course(){

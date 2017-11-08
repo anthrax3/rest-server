@@ -3,6 +3,8 @@
 const BaseModel = use('Model')
 const _ = require('lodash')
 const Validator = use('Validator')
+const Config = use('Config')
+const Helpers = use('Helpers')
 const Antl = use('Antl')
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
@@ -42,6 +44,16 @@ class Model extends BaseModel {
 
   rules() {
     return {}
+  }
+
+  uploadUri(val){
+    if (!val) {
+      return val
+    }
+    if (val.match(/^http/i)) {
+      return val
+    }
+    return Config.get('api.upload.url') + '/' + val
   }
 }
 

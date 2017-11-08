@@ -12,7 +12,10 @@ module.exports = class ResourceController {
   }
 
   async grid({ request, Model }) {
+    const searchFields = _.pickBy(await Model.fields(), 'searchable')
     return {
+      searchFields: searchFields,
+      searchModel: _.mapValues(searchFields, v => null),
       fields: _.omitBy(await Model.fields(), (v, k) => v.listable === false)
     }
   }
@@ -26,7 +29,10 @@ module.exports = class ResourceController {
   }
 
   async store({ request, auth, Model, model }) {
-    model.merge(request.all())
+    const data = request.all()
+    await model.validate(data)
+    model.fill(data)
+    await model.save()
     return model
   }
 
@@ -42,7 +48,11 @@ module.exports = class ResourceController {
     return model
   }
 
-  async delete() {
+  async destroy({ request, auth, Model, model, validate }) {
+    await model.delete()
+    return {
+      success: true
+    }
   }
 
   async choices({ request }) {

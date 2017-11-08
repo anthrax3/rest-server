@@ -11,7 +11,7 @@ module.exports = class News extends Model {
   static async fields() {
     return {
       _id: { sortable: true },
-      title: { label: '标题', sortable: true},
+      title: { label: '标题', sortable: true, searchable: true},
       image: { label: '图片', type: 'image' },
       source: { label: '来源' },
 
@@ -21,6 +21,10 @@ module.exports = class News extends Model {
       created_at: { label: '创建时间' },
 
     }
+  }
+
+  getImage(val){
+    return this.uploadUri(val)
   }
 
 }

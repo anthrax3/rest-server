@@ -1,6 +1,7 @@
 'use strict'
 
 const inflection = require('inflection')
+const _ = require('lodash')
 
 class Resource {
   async handle (ctx, next) {
@@ -10,8 +11,9 @@ class Resource {
     if (resource) {
       const Model = use('App/Models/' + inflection.classify(resource))
       if (params.id) {
-        const model = await Model.findOrFail(params.id)
-        ctx.model = model
+        ctx.model = await Model.findOrFail(params.id)
+      } else {
+        ctx.model = new Model
       }
       let query = request.input('query', {})
       if (typeof query === 'string') {
@@ -25,6 +27,17 @@ class Resource {
         }
         return {}
       }
+
+      _.mapValues(query.where, (v, k) => {
+        if (v === '' || v === null) {
+          delete query.where[k]
+        }
+        if (typeof v === 'string' && !Model.objectIDs.includes(k)) {
+          query.where[k] = new RegExp(v, 'i')
+        }
+      })
+      console.log(query.where);
+      
 
       ctx.query = query
       ctx.resource = resource
