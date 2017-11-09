@@ -92,5 +92,17 @@ module.exports = {
       database: Env.get('DB_DATABASE', 'adonis')
     },
     debug: Env.get('DB_DEBUG', false)
+  },
+  
+  old: {
+    client: 'mysql',
+    connection: {
+      host: Env.get('OLD_DB_HOST', 'localhost'),
+      port: Env.get('OLD_DB_PORT', ''),
+      user: Env.get('OLD_DB_USER', 'root'),
+      password: Env.get('OLD_DB_PASSWORD', ''),
+      database: Env.get('OLD_DB_DATABASE', 'adonis')
+    },
+    debug: Env.get('DB_DEBUG', false)
   }
 }

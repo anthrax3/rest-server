@@ -92,15 +92,22 @@ module.exports = class ResourceController {
       username: 'required',
       password: 'required',
     })
+    const user = await AdminUser.findBy('username', username)
+    if (!user) {
+      throw new HttpException([
+        {field: 'username', message: '用户不存在'}
+      ], 422)
+    }
     let token
     try {
       token = await auth.attempt(username, password)
     } catch (e) {
+      // token = await auth.generate(user) //for test
       throw new HttpException([
-        {field: 'password', message: '用户名或密码错误'}
+        {field: 'password', message: '密码错误'}
       ], 422)
     }
-    token.user = await AdminUser.findBy('username', username)
+    token.user = user
     return token
   }
 
