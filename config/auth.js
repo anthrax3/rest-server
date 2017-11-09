@@ -66,7 +66,17 @@ module.exports = {
     serializer: 'lucid',
     model: 'App/Models/User',
     scheme: 'jwt',
-    uid: 'email',
+    uid: 'mobile',
+    password: 'password',
+    options: {
+      secret: 'self::app.appKey'
+    }
+  },
+  adminJwt: {
+    serializer: 'lucid',
+    model: 'App/Models/AdminUser',
+    scheme: 'jwt',
+    uid: 'username',
     password: 'password',
     options: {
       secret: 'self::app.appKey'

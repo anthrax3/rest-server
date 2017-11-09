@@ -1,5 +1,17 @@
 const Route = use('Route')
 
+//不需要登录
+Route.group(() => {
+
+  Route.post('login', 'ResourceController.login')
+  
+
+}).prefix('admin/api').middleware([
+  'authenticator:adminJwt'
+])
+
+
+//需要登录
 Route.group(() => {
 
   Route.post('upload', 'ResourceController.upload')
@@ -10,5 +22,7 @@ Route.group(() => {
   Route.resource(':resource', 'ResourceController')
 
 }).prefix('admin/api').middleware([
+  'auth:adminJwt',
   'resource'
 ])
+

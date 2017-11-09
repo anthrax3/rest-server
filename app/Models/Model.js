@@ -26,16 +26,8 @@ class Model extends BaseModel {
 
   async validate(data, rules = {}, messages = {}) {
     rules = Object.assign({}, this.rules() || {}, rules)
-    messages = Object.assign({}, Antl.list('validations'), messages)
     const labels = await this.constructor.labels()
-    const validation = await Validator.validate(data, rules, messages)
-    if (validation.fails()) {
-      let errorMessages = _.each(validation.messages(), v => {
-        v.message = v.message.replace(v.field, labels[v.field])
-        return v
-      })
-      throw new HttpException(errorMessages, 422)
-    }
+    await validate(data, rules, messages, labels)
   }
 
   static async labels() {

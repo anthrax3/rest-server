@@ -4,6 +4,7 @@ const _ = require('lodash')
 const Helpers = use('Helpers')
 const Config = use('Config')
 const fs = require('fs')
+const { HttpException } = require('@adonisjs/generic-exceptions')
 
 module.exports = class ResourceController {
 
@@ -59,7 +60,7 @@ module.exports = class ResourceController {
 
   }
 
-  async upload({ request, auth, Model, model, validate }) {
+  async upload({ request, auth }) {
     const file = request.file('file', {
       types: ['image', 'audio', 'video'],
       size: '100mb'
@@ -68,17 +69,39 @@ module.exports = class ResourceController {
     const uploadPath = Config.get('api.upload.path')
     const filePath = uploadPath + '/' + fileData.clientName
     const fileUrl = Config.get('api.upload.url') + '/' + fileData.clientName
-
+    
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath)
     }
     await file.move(uploadPath)
     if (!file.moved()) {
-      return file.error()
+      throw new HttpException(file.error(), 400)
     }
     return {
+      title: fileData.clientName,
+      state: "SUCCESS",
       url: fileUrl
     }
+  }
+
+  async login({ request, auth }) {
+    const AdminUser = use('App/Models/AdminUser')
+    const data = request.all()
+    const { username, password } = data
+    await validate(data, {
+      username: 'required',
+      password: 'required',
+    })
+    let token
+    try {
+      token = await auth.attempt(username, password)
+    } catch (e) {
+      throw new HttpException([
+        {field: 'password', message: '用户名或密码错误'}
+      ], 422)
+    }
+    token.user = await AdminUser.findBy('username', username)
+    return token
   }
 
 }

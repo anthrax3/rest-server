@@ -18,7 +18,7 @@ module.exports = class News extends Model {
       description: { label: '描述', type: 'textarea', listable: false },
       content: { label: '详情', type: 'html', listable: false },
 
-      created_at: { label: '创建时间' },
+      created_at: { label: '创建时间', type: 'date', range: true, searchable: true},
 
     }
   }
