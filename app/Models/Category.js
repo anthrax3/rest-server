@@ -4,6 +4,10 @@ const Model = require('./Model')
 
 module.exports = class Category extends Model {
 
+  static get objectIDs(){
+    return ['_id', 'parent_id']
+  }
+
   static get label() {
     return '分类'
   }
@@ -13,7 +17,7 @@ module.exports = class Category extends Model {
       _id: { sortable: true },
       parent_id: {
         label: '上级分类', sortable: true, type: 'select', ref: "parent.name",
-        options: await Category.options('id', 'name'), format: 'Number',
+        options: await Category.treeOptions('_id', 'name'),
         searchable: true
       },
       name: { label: '名称', searchable: true },
@@ -29,7 +33,7 @@ module.exports = class Category extends Model {
   }
 
   parent() {
-    return this.belongsTo('App/Models/Category', 'parent_id', 'id')
+    return this.belongsTo('App/Models/Category', 'parent_id', '_id')
   }
 
 }

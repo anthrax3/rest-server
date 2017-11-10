@@ -17,8 +17,13 @@ require('./functions')
 
 const Route = use('Route')
 
-Route.get('/', ({ request }) => {
-  return { greeting: 'Hello world in JSON' }
+Route.get('/', async ({ request }) => {
+  return await use('App/Models/Category').treeOptions('_id', 'name')
 })
+
+async function main() {
+  console.log(await use('App/Models/Category').treeOptions('_id', 'name'));
+}
+// main()
 
 require('./rest-api')
