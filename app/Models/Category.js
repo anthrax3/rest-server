@@ -18,11 +18,11 @@ module.exports = class Category extends Model {
       parent_id: {
         label: '上级分类', sortable: true, type: 'select', ref: "parent.name",
         options: await Category.treeOptions('_id', 'name'),
-        searchable: true
+        searchable: true, cols: 3
       },
-      name: { label: '名称', searchable: true },
-      icon: { label: '图标' },
-      sort: { label: '排序', sortable: true, type: 'number', format: 'Number' },
+      name: { label: '名称', searchable: true, cols: 3 },
+      icon: { label: '图标', cols: 3 },
+      sort: { label: '排序', sortable: true, type: 'number', format: 'Number', cols: 3 },
     }
   }
 

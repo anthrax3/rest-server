@@ -3,7 +3,9 @@
 const { Command } = require('@adonisjs/ace')
 const { ioc } = require('@adonisjs/fold')
 const _ = require('lodash')
+const inflection = require('inflection')
 const { ObjectID } = require('mongodb')
+const arrayToTree = require('array-to-tree')
 
 ioc.singleton('Adonis/Raw/Database', (app) => {
   const Config = app.use('Adonis/Src/Config')
@@ -32,9 +34,10 @@ module.exports = class Transform extends Command {
     // await this.syncAds()
     // await this.syncAdmin()
     // await this.syncCategories()
-
+    // await this.syncNews()
     // await this.syncUsers()
-    await this.syncCourses()
+    // await this.syncCourses()
+    await this.syncAssoc()
 
     db.close()
     db2.close()
@@ -54,7 +57,12 @@ module.exports = class Transform extends Command {
   }
 
   async syncAdmin() {
-    await c('admin_users').insert(await t('admin_users'))
+    const data = await t('admin_users')
+    data.forEach(v => {
+      v.password = String(v.password).replace('$2y$', '$2a$')
+    })
+    await c('admin_users').delete({})
+    await c('admin_users').insert(data)
   }
 
   async syncCategories() {
@@ -77,9 +85,7 @@ module.exports = class Transform extends Command {
   async syncUsers() {
     const data = await t('users')
     data.forEach(v => {
-      if (v.password) {
-        v.password = v.password.replace('$2y$', '$2a$')
-      }
+      v.password = String(v.password).replace('$2y$', '$2a$')
     })
     await c('users').delete({})
     await c('users').insert(data)
@@ -95,6 +101,13 @@ module.exports = class Transform extends Command {
     await c('readings').delete({})
 
     await c('news').insert(news)
+
+    const newNews = await c('news').find()
+    presses.forEach(v => {
+      v.news_id = _.find(news, { id: v.news_id })._id
+    })
+
+
     await c('presses').insert(presses)
     await c('readings').insert(readings)
   }
@@ -108,13 +121,93 @@ module.exports = class Transform extends Command {
     await c('courses').delete({})
     await c('posts').delete({})
 
-    const newCourses = await c('courses').insert(courses)
+    await c('courses').insert(courses)
+
+    const newCourses = await c('courses').find()
+    const users = await c('users').find()
 
     posts.forEach(v => {
-      const item = _.find(newCourses, {id: assoc[v.id].course_id})
-      v.course_id = ObjectID(item._id)
+
+      try {
+        const item = _.find(newCourses, { id: assoc[v.id].course_id })
+        v.course_id = ObjectID(item._id)
+        v.user_id = ObjectID(_.find(users, { id: v.user_id })._id)
+        v.is_free = !!v.is_free
+      } catch (e) { }
     })
 
     await c('posts').insert(posts)
+  }
+
+  async syncAssoc() {
+    // const cats = await c('categories')
+    // const catsAssoc = await t('categoryables')
+
+    const props = await t('properties')
+    const propsAssoc = await t('propertyables')
+
+    _.mapValues(props, v => {
+      delete v.created_at
+      delete v.updated_at
+      delete v.description
+      // delete v.name
+    })
+
+    // console.dir(arrayToTree(props))
+    await c('properties').delete({})
+    await c('properties').insert(arrayToTree(props))
+
+    log(arrayToTree(props))
+    
+    return
+
+    const getColName = ns => inflection.pluralize(inflection.underscore(ns.split('\\').pop()))
+
+    // await c('properties').insert(props)
+
+    const newProps = await c('properties')
+
+    const group = _.mapValues(
+      _.groupBy(
+        propsAssoc,
+        v => getColName(v.propertyable_type)
+      ),
+      (v, k) => {
+        const data = _.mapValues(_.groupBy(v, 'propertyable_id'), v => _.map(v, 'property_id'))
+        console.log(data);
+        
+        // return _.groupBy(v, 'propertyable_id')
+      }
+    )
+    // return console.log(group);
+
+    // _.mapValues(group, async (row, col) => {
+
+    // })
+    // catsAssoc.forEach(v => {
+    //   const colName = getColName(v.categoryable_type)
+    //   const cat = _.find(cats, {id: v.category_id})
+    //   await c(colName).update({
+    //     id: v.cateoryable_id
+    //   }, {
+    //     categories: [cat]
+    //   })
+    // })
+    // const newCatsAssoc = []
+    // propsAssoc.forEach(v => {
+    //   newCatsAssoc.push()
+    // })
+    // propsAssoc.forEach(v => {
+    //   const colName = getColName(v.propertyable_type)
+    //   const cat = _.find(cats, {id: v.property_id})
+    //   await c(colName).update({
+    //     id: v.propertyable_id
+    //   }, {
+    //     properties: [cat]
+    //   })
+    // })
+
+
+
   }
 }

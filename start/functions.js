@@ -20,3 +20,7 @@ global.validate = async function (data, rules, messages, labels) {
     throw new HttpException(errorMessages, 422)
   }
 }
+
+global.log = val => {
+  console.log(JSON.stringify(val, null, 2));
+}

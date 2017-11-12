@@ -14,13 +14,13 @@ module.exports = class AdminUser extends Model {
     return {
       _id: { sortable: true },
       username: { label: '用户名' },
-      password: { label: '密码', type: 'password', listable: false },
+      password: { label: '密码', type: 'password', listable: false, autocomplete: 'new-password' },
+      
       realname: { label: '真实姓名' },
       avatar: { label: '头像', type: 'image', preview: { height: 300 } },
       
       role: { label: '角色', sortable: true },
       created_at: { label: '注册时间', sortable: true },
-      sort: { label: '排序', sortable: true },
     }
   }
 

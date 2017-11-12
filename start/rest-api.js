@@ -22,7 +22,7 @@ Route.group(() => {
   Route.resource(':resource', 'ResourceController')
 
 }).prefix('admin/api').middleware([
-  'auth:adminJwt',
+  // 'auth:adminJwt',
   'resource'
 ])
 

@@ -8,19 +8,19 @@ const Helpers = use('Helpers')
 const Antl = use('Antl')
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
-
+const arrayToTree = require("array-to-tree")
 
 class Model extends BaseModel {
   static async options(lhs, rhs) {
     let data = await this.select([lhs, rhs]).fetch()
     data = _.map(data.toJSON(), v => {
       return {
-        label: v[rhs],
+        text: v[rhs],
         value: v[lhs],
       }
     })
     data.unshift({
-      label: '请选择...',
+      text: '请选择...',
       value: null,
     })
     return data
@@ -28,33 +28,32 @@ class Model extends BaseModel {
 
   static async treeOptions(lhs = '_id', rhs = 'name', parentField = 'parent_id', parentValue = null) {
     let data = await this.select([lhs, rhs, parentField]).fetch()
-    const group = _.groupBy(data.toJSON(), parentField)
-    const unflatten = (items, level = 1) => {
-      level++
-      items.forEach(item => {
-        item.text = item[rhs],
-        item.value = item[lhs],
-        item.children = group[item[lhs]] ? unflatten(group[item[lhs]], level) : []
-      })
-      return items
-    }
-
+    
+    const tree = arrayToTree(data.toJSON(), {
+      customID: '_id'
+    })
+    
     const flatten = (items = [], level = 1) => {
       let ret = []
       level++
       items.forEach(item => {
-        const option = _.pick(item, ['text', 'value'])
-        option.text = _.padStart(option.text, level, '　')
+        
+        const option = {
+          value: item[lhs],
+          text: _.padStart(item[rhs], level, '　'),
+        }
         ret.push(option)
         ret = ret.concat(flatten(item.children, level))
       })
       return ret
     }
-    const options = flatten(unflatten(group[parentValue]))
-    options.unshift({
-      text: '请选择...',
-      value: null,
-    })
+    const options = [
+      {
+        text: '请选择...',
+        value: null,
+      }
+    ].concat(flatten(tree))
+    
     return options
   }
 
@@ -73,8 +72,8 @@ class Model extends BaseModel {
   }
 
   uploadUri(val) {
-    if (!val) {
-      return val
+    if (!val || typeof val != 'string') {
+      return ''
     }
     if (val.match(/^http/i)) {
       return val

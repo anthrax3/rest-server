@@ -11,9 +11,9 @@ module.exports = class News extends Model {
   static async fields() {
     return {
       _id: { sortable: true },
-      title: { label: '标题', sortable: true, searchable: true},
-      image: { label: '图片', type: 'image' },
-      source: { label: '来源' },
+      title: { label: '标题', cols: 3, sortable: true, searchable: true},
+      image: { label: '图片', cols: 3, type: 'image' },
+      source: { label: '来源', cols: 3 },
 
       description: { label: '描述', type: 'textarea', listable: false },
       content: { label: '详情', type: 'html', listable: false },
