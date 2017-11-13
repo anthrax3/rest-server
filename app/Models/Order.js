@@ -2,8 +2,15 @@
 
 const Model = require('./Model')
 const User = use('App/Models/User')
+const OrderItem = use('App/Models/OrderItem')
 
 module.exports = class Order extends Model {
+
+  static get dates() {
+    return super.dates.concat([
+      'paid_at'
+    ])
+  }
 
   static get label() {
     return '订单'
@@ -15,8 +22,8 @@ module.exports = class Order extends Model {
 
   static async fields() {
     return {
-      _id: { sortable: true },
-      no: { label: '编号' },
+      // _id: { sortable: true },
+      no: { label: '编号', sortable: true, searchable: true },
       title: { label: '名称' },
       user_id: {
         label: '用户',
@@ -44,13 +51,7 @@ module.exports = class Order extends Model {
         editable: false,
         listable: false,
         ref: 'items.buyable._id',
-        fields: {
-          buyable_type: { label: '产品类型' },
-          buyable_id: { label: '产品', ref: "buyable.name" },
-          price: { label: '价格' },
-          started_at: { label: '生效时间' },
-          expired_at: { label: '过期时间' },
-        }
+        fields: _.omit(await OrderItem.fields(), ['_id'])
       },
       total: { label: '金额', sortable: true },
       created_at: { label: '创建时间' },

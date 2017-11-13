@@ -43,6 +43,10 @@ module.exports = class Post extends Model {
     }
   }
 
+  getImage(val){
+    return this.uploadUri(val)
+  }
+
   getVoice(val){
     return this.uploadUri(val)
   }

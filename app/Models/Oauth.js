@@ -4,9 +4,17 @@ const Model = require('./Model')
 const User = use('App/Models/User')
 
 module.exports = class Oauth extends Model {
+  
+  static get objectIDs () {
+    return ['_id', 'user_id']
+  }
   static get label() {
     return '第三方账号'
   }
+  static get gridActions () {
+
+  }
+
   static async fields() {
     return {
       _id: { sortable: true },
@@ -34,6 +42,14 @@ module.exports = class Oauth extends Model {
       avatar: { label: '头像', type: 'image' },
       // data: {type: 'textarea', listable: false},
       created_at: { label: '创建时间' },
+      actions: {
+        label: '操作',
+        buttons: {
+          show: true,
+          edit: false,
+          remove: false
+        }
+      }
     }
   }
 

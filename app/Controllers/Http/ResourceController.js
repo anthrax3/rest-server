@@ -14,10 +14,11 @@ module.exports = class ResourceController {
 
   async grid({ request, Model }) {
     const searchFields = _.pickBy(await Model.fields(), 'searchable')
+    const fields = await Model.fields()
     return {
       searchFields: searchFields,
       searchModel: _.mapValues(searchFields, v => null),
-      fields: _.omitBy(await Model.fields(), (v, k) => v.listable === false)
+      fields: _.omitBy(fields, (v, k) => v.listable === false)
     }
   }
 
@@ -109,10 +110,11 @@ module.exports = class ResourceController {
     try {
       token = await auth.attempt(username, password)
     } catch (e) {
-      // token = await auth.generate(user) //for test
       throw new HttpException([
         {field: 'password', message: '密码错误'}
       ], 422)
+      // token = await auth.generate(user) //for test
+      
     }
     token.user = user
     return token

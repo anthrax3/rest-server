@@ -11,6 +11,11 @@ const { HttpException } = require('@adonisjs/generic-exceptions')
 const arrayToTree = require("array-to-tree")
 
 class Model extends BaseModel {
+
+  static get objectIDs() {
+    return ['_id']
+  }
+  
   static async options(lhs, rhs) {
     let data = await this.select([lhs, rhs]).fetch()
     data = _.map(data.toJSON(), v => {
