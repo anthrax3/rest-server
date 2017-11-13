@@ -80,6 +80,10 @@ class Model extends BaseModel {
     }
     return Config.get('api.upload.url') + '/' + val
   }
+
+  user() {
+    return this.belongsTo('App/Models/User', 'user_id', '_id')
+  }
 }
 
 module.exports = Model

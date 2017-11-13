@@ -2,6 +2,8 @@
 
 const Model = require('./Model')
 const Config = use('Config')
+const Property = use('App/Models/Property')
+
 
 class User extends Model {
   static get hidden() {
@@ -13,16 +15,27 @@ class User extends Model {
   static async fields() {
     return {
       _id: { sortable: true },
-      mobile: { label: '手机号', cols: 3 },
-      username: { label: '用户名', cols: 3 },
-      password: { label: '密码', cols: 3, type: 'password', autocomplete: 'new-password' },
+      mobile: { label: '手机号', cols: 4, searchable: true },
+      username: { label: '用户名', cols: 4, searchable: true },
+      password: { label: '密码', cols: 4, type: 'password', autocomplete: 'new-password',listable: false },
 
-      realname: { label: '真实姓名', cols: 3 },
+      realname: { label: '真实姓名', cols: 4, searchable: true },
       
       
-      points: { label: '积分', cols: 3, sortable: true , editable: false},
-      avatar: { label: '头像', cols: 3, type: 'image', preview: { height: 120 } },
-      created_at: { label: '注册时间', sortable: true },
+      points: { label: '积分', cols: 4, sortable: true , editable: false},
+      position: { label: '职位', cols: 4, type: 'select', options: await Property.options('position'), searchable: true},
+      trade: { label: '行业', cols: 4, type: 'select', options: await Property.options('profession'), searchable: true},
+      created_at: { label: '注册时间', sortable: true, searchable: true },
+
+      oauth: {
+        label: '第三方账号',
+        type: 'object',
+        fields: {
+          type: {label: '类型'},
+          nickname: {label: '用户名'},
+        },
+        listable: false
+      }
     }
   }
 

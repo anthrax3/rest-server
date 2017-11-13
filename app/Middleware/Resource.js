@@ -12,14 +12,18 @@ class Resource {
     const resource = params.resource
     if (resource) {
       const Model = use('App/Models/' + inflection.classify(resource))
-      if (params.id) {
-        ctx.model = await Model.findOrFail(params.id)
-      } else {
-        ctx.model = new Model
-      }
+      
       let query = request.input('query', {})
       if (typeof query === 'string') {
         query = JSON.parse(query)
+      }
+
+      if (params.id) {
+        ctx.model = await Model.query(query).where({
+          _id: params.id
+        }).firstOrFail()
+      } else {
+        ctx.model = new Model
       }
 
       Model.getChoices = async () => {

@@ -35,6 +35,21 @@ module.exports = class Property extends Model {
     }
   }
 
+  static async options(name) {
+    const model = await this.findBy({name})
+    const data = model.children.map(v => {
+      return {
+        text: v.title,
+        value: v.title
+      }
+    })
+    data.unshift({
+      text: '请选择',
+      value: null
+    })
+    return data
+  }
+
   parent() {
     return this.belongsTo('App/Models/Property', 'parent_id', 'id')
   }

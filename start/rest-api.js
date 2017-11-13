@@ -19,6 +19,7 @@ Route.group(() => {
 
   Route.get(':resource/grid', 'ResourceController.grid')
   Route.get(':resource/form', 'ResourceController.form')
+  Route.get(':resource/view', 'ResourceController.view')
   Route.resource(':resource', 'ResourceController')
 
 }).prefix('admin/api').middleware([

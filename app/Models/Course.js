@@ -27,4 +27,7 @@ module.exports = class Course extends Model {
     return this.uploadUri(val)
   }
 
+  user(){
+    return this.belongsTo('App/Models/User','user_id', '_id')
+  }
 }

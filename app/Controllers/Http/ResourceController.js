@@ -25,7 +25,14 @@ module.exports = class ResourceController {
     return {
       labels: await Model.labels(),
       fields: _.omitBy(await Model.fields(), (v, k) => v.editable === false || ['_id', 'created_at', 'updated_at', 'actions'].includes(k)),
-      model: model
+      model: model,
+    }
+  }
+  async view({ request, Model, model }) {
+    return {
+      labels: await Model.labels(),
+      fields: _.omitBy(await Model.fields(), (v, k) => v.viewable === false),
+      model: model,
     }
   }
 
