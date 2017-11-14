@@ -15,9 +15,9 @@ class Model extends BaseModel {
   static get objectIDs() {
     return ['_id']
   }
-  
-  static async options(lhs, rhs) {
-    let data = await this.select([lhs, rhs]).fetch()
+
+  static async options(lhs, rhs, where = {}) {
+    let data = await this.select([lhs, rhs]).where(where).fetch()
     data = _.map(data.toJSON(), v => {
       return {
         text: v[rhs],

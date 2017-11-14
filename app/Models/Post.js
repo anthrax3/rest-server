@@ -24,7 +24,7 @@ module.exports = class Post extends Model {
       },
       user_id: { 
         label: '所属专家', type: 'select2', ref: "user.username", cols: 6,
-        options: await User.options('_id', 'username'), searchable: true,
+        options: await User.options('_id', 'username', { role_id: 1 }), searchable: true,
         sortable: true
       },
       title: { label: '标题', searchable: true ,cols: 6, },
