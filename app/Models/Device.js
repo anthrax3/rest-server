@@ -16,6 +16,7 @@ module.exports = class Device extends Model {
       width: { label: '屏幕宽度(px)' },
       height: { label: '屏幕高度(px)' },
       created_at: { label: '注册时间' },
+      actions: false
     }
   }
 

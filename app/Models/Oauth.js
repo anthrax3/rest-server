@@ -23,7 +23,7 @@ module.exports = class Oauth extends Model {
         type: 'select2', 
         ref: "user.username", 
         cols: 6,
-        options: await User.options('_id', 'username'), 
+        options: await use('App/Models/User').options('_id', 'username'), 
         searchable: true,
         sortable: true
       },
@@ -39,6 +39,7 @@ module.exports = class Oauth extends Model {
         searchable: true
       },
       openid: { label: 'OpendID' },
+      nickname: {label: '昵称'},
       avatar: { label: '头像', type: 'image' },
       // data: {type: 'textarea', listable: false},
       created_at: { label: '创建时间' },

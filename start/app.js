@@ -18,8 +18,13 @@ const providers = [
   '@adonisjs/lucid/providers/LucidProvider',
   '@adonisjs/validator/providers/ValidatorProvider',
   '@adonisjs/antl/providers/AntlProvider',
-  
+  '@adonisjs/drive/providers/DriveProvider',
   'lucid-mongo/providers/LucidMongoProvider',
+
+  __dirname + '/../app/Providers/DriveProvider',
+
+
+  
 ]
 
 /*

@@ -29,6 +29,12 @@ module.exports = class Ad extends Model {
         },
         
       },
+      actions: {
+        buttons: {
+          show: false,
+          remove: false
+        }
+      }
     }
   }
 

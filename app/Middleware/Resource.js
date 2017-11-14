@@ -2,7 +2,7 @@
 
 const inflection = require('inflection')
 const _ = require('lodash')
-
+const { HttpException } = require('@adonisjs/generic-exceptions')
 
 class Resource {
   async handle(ctx, next) {
@@ -12,16 +12,21 @@ class Resource {
     const resource = params.resource
     if (resource) {
       const Model = use('App/Models/' + inflection.classify(resource))
-      
+
       let query = request.input('query', {})
       if (typeof query === 'string') {
         query = JSON.parse(query)
       }
 
       if (params.id) {
-        ctx.model = await Model.query(query).where({
+        const ret = await Model.query(query).where({
           _id: params.id
-        }).firstOrFail()
+        }).limit(1).fetch()
+        if (ret.rows.length < 1) {
+          throw new HttpException('模型不存在', 404)
+        }
+        ctx.model = ret.rows[0]
+        //因.firstOrFail()方法不支持morphTo关联，故用fetch和row[0]代替
       } else {
         ctx.model = new Model
       }

@@ -30,6 +30,12 @@ module.exports = class OrderItem extends Model {
       price: { label: '价格' },
       started_at: { label: '生效时间' },
       expired_at: { label: '过期时间' },
+      actions: {
+        buttons: {
+          edit: false,
+          remove: false
+        }
+      }
     }
   }
 

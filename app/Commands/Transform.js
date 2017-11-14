@@ -31,18 +31,18 @@ module.exports = class Transform extends Command {
     const tables = await db.raw('show tables')
 
 
-    await this.syncAds()
-    await this.syncAdmin()
-    await this.syncCategories()
-    await this.syncNews()
-    await this.syncUsers()
-    await this.syncCourses()
+    // await this.syncAds()
+    // await this.syncAdmin()
+    // await this.syncCategories()
+    // await this.syncNews()
+    // await this.syncUsers()
+    // await this.syncCourses()
     await this.syncAssoc()
-    await this.syncOauth()
+    // await this.syncOauth()
 
-    await this.syncOrders()
-    await this.syncDevices()
-    await this.syncSms()
+    // await this.syncOrders()
+    // await this.syncDevices()
+    // await this.syncSms()
 
 
     db.close()

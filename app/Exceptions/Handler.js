@@ -23,6 +23,7 @@ class ExceptionHandler {
       code: error.code,
       name: error.name,
       message: error.message,
+      stack: error.stack.split("\n"),
     })
   }
 

@@ -16,10 +16,6 @@ module.exports = class Order extends Model {
     return '订单'
   }
 
-  static get actions() {
-    return false
-  }
-
   static async fields() {
     return {
       // _id: { sortable: true },
@@ -51,11 +47,17 @@ module.exports = class Order extends Model {
         editable: false,
         listable: false,
         ref: 'items.buyable._id',
-        fields: _.omit(await OrderItem.fields(), ['_id'])
+        fields: _.omit(await OrderItem.fields(), ['_id', 'actions'])
       },
       total: { label: '金额', sortable: true },
       created_at: { label: '创建时间' },
       paid_at: { label: '支付时间', sortable: true },
+      actions: {
+        buttons: {
+          edit: false,
+          remove: false
+        }
+      }
     }
   }
 
