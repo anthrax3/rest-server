@@ -14,4 +14,4 @@ POST {{uri}}/login
 }
 
 ###
-POST {{uri}}/index
+GET {{uri}}/index

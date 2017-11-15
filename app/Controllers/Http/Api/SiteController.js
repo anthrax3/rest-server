@@ -7,6 +7,10 @@ const Drive = use('Drive')
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
 const User = use('App/Models/User')
+const Option = use('App/Models/Option')
+const Course = use('App/Models/Course')
+const Reading = use('App/Models/Reading')
+const Ad = use('App/Models/Ad')
 
 module.exports = class SiteController {
 
@@ -74,9 +78,11 @@ module.exports = class SiteController {
   }
 
   async index({ request }) {
-    // const settings = 
+    const recommend = await Option.get('recommend')
+    const pagesize = _.mapValues(_.keyBy(await Option.get('pagesize'), 'name'), 'value')
     return {
-      ads: await use('App/Models/Ad').findBy({})
+      ads: await Ad.findBy({name: 'index_ads'}),
+      courses: await Course.select(['_id', 'name']).where({}).limit(parseInt(pagesize.home_courses)).fetch()
     }
   }
   
