@@ -24,6 +24,10 @@ class User extends Model {
       position: { label: '职位', cols: 4, type: 'select', options: await Property.options('position'), searchable: true},
       trade: { label: '行业', cols: 4, type: 'select', options: await Property.options('profession'), searchable: true},
       created_at: { label: '注册时间', sortable: true, searchable: true },
+      wx: {
+        label: '微信',
+        ref: 'wx.nickname',
+      },
       oauths: {
         label: '第三方账号',
         type: 'array',
@@ -48,6 +52,14 @@ class User extends Model {
   oauths() {
     return this.hasMany('App/Models/Oauth', '_id', 'user_id')
   }
+
+  wx(){
+    return this.hasOne('App/Models/Oauth', '_id', 'user_id').where('type', 'wx')
+  }
+  qq(){
+    return this.hasOne('App/Models/Oauth', '_id', 'user_id').where('type', 'qq')
+  }
+  
 }
 
 module.exports = User

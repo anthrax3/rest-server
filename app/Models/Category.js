@@ -26,6 +26,13 @@ module.exports = class Category extends Model {
     }
   }
 
+  getIcon(val) {
+    if (val && val.match(/\.\w+/i)) {
+      return this.uploadUri(val)
+    }
+    return val
+  }
+
   rules() {
     return {
       name: 'required'

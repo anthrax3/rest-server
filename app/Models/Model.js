@@ -83,6 +83,7 @@ class Model extends BaseModel {
     if (val.match(/^http/i)) {
       return val
     }
+    return use('Drive').getUrl(val)
     return Config.get('api.upload.url') + '/' + val
   }
 

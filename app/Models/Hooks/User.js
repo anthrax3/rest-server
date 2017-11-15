@@ -4,17 +4,9 @@ const Hash = use('Hash')
 
 const UserHook = module.exports = {}
 
-/**
- * Hash using password as a hook.
- *
- * @method
- *
- * @param  {Object} userInstance
- *
- * @return {void}
- */
-UserHook.hashPassword = async (userInstance) => {
-  if (userInstance.password) {
-    userInstance.password = await Hash.make(userInstance.password)
+UserHook.hashPassword = async (model) => {
+  const dirty = model.dirty
+  if (dirty.password) {
+    model.password = await Hash.make(model.password)
   }
 }

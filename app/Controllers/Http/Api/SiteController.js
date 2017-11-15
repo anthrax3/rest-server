@@ -6,39 +6,39 @@ const Config = use('Config')
 const Drive = use('Drive')
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
+const User = use('App/Models/User')
+
 module.exports = class SiteController {
 
-
   async login({ request, auth }) {
-    const AdminUser = use('App/Models/AdminUser')
+
     const data = request.all()
-    const { username, password } = data
+    const { mobile, password } = data
     await validate(data, {
-      username: 'required',
+      mobile: 'required',
       password: 'required',
     })
-    const user = await AdminUser.findBy('username', username)
+    const user = await User.findBy('mobile', mobile)
     if (!user) {
       throw new HttpException([
-        {field: 'username', message: '用户不存在'}
+        { field: 'mobile', message: '用户不存在' }
       ], 422)
     }
     let token
     try {
-      token = await auth.attempt(username, password)
+      token = await auth.attempt(mobile, password)
     } catch (e) {
       throw new HttpException([
-        {field: 'password', message: '密码错误'}
+        { field: 'password', message: '密码错误' }
       ], 422)
-      // token = await auth.generate(user) //for test
-      
+      token = await auth.generate(user) //for test
     }
     token.user = user
     return token
   }
 
   async upload({ request, response, auth }) {
-    
+
     const type = request.input('type')
     const file = request.file('file', {
       types: ['image', 'audio', 'video'],
@@ -73,4 +73,15 @@ module.exports = class SiteController {
     }
   }
 
+  async index({ request }) {
+    // const settings = 
+    return {
+      ads: await use('App/Models/Ad').findBy({})
+    }
+  }
+  
+  async news({ request }) {
+
+    return use('App/Models/Course').limit(3).fetch()
+  }
 }

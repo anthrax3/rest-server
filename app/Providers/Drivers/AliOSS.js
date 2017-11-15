@@ -15,7 +15,11 @@ const OSS = require('ali-oss').Wrapper
  * @class AliOSS
  */
 module.exports = class AliOSS extends OSS {
-  getUrl(...args){
-    return this.getObjectUrl(...args)
+  constructor(config) {
+    super(config)
+    this.config = config
+  }
+  getUrl(path) {
+    return this.getObjectUrl(path, this.config.publicUrl)
   }
 }

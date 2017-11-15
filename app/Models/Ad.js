@@ -38,4 +38,14 @@ module.exports = class Ad extends Model {
     }
   }
 
+  getItems(val) {
+    if (!val) {
+      return val
+    }
+    val.forEach(v => {
+      v.image = this.uploadUri(v.image)
+    })
+    return val
+  }
+
 }

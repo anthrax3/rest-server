@@ -30,4 +30,5 @@ async function main() {
 }
 main()
 
-require('./rest-api')
+require('./admin')
+require('./api')

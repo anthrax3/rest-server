@@ -9,7 +9,9 @@ module.exports = class Press extends Model {
   static async fields() {
     return {
       _id: { sortable: true },
-      mobile: { label: '手机号' }
+      news_id: {label: '关联新闻', ref: "news.title"},
+      title: { label: '标题' },
+      content: { label: '内容' },
     }
   }
 

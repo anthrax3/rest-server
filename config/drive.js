@@ -13,7 +13,7 @@ module.exports = {
   | defining a disk name
   |
   */
-  default: 'qiniu',
+  default: 'alioss',
 
   disks: {
     /*
