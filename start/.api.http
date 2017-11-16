@@ -14,4 +14,44 @@ POST {{uri}}/login
 }
 
 ###
-GET {{uri}}/index
+GET {{uri}}/courses
+{{json}}
+{{ajson}}
+
+{
+  "query": {
+    "with": ["user", "categories"],
+    "page": 1,
+    "perPage": 2
+  }
+}
+
+###
+GET {{uri}}/posts
+{{json}}
+{{ajson}}
+
+{
+  "query": {
+    "where": {
+      "is_book": true
+    },
+    "with": ["user", "categories"]
+  }
+}
+
+###
+GET {{uri}}/posts
+{{json}}
+{{ajson}}
+
+{
+  "query": {
+    "where": {
+      "is_free": true
+    },
+    "with": ["user", "categories"]
+  }
+}
+
+###

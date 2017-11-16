@@ -68,7 +68,7 @@ module.exports = class Post extends Model {
   }
 
   user() {
-    return this.belongsTo('App/Models/User', 'user_id', '_id')
+    return this.belongsTo('App/Models/User', 'user_id', '_id').select(User.listFields)
   }
 
   categories() {

@@ -5,9 +5,10 @@ const Model = require('./Model')
 module.exports = class Property extends Model {
   static async fields() {
     return {
-      id: { label: 'ID', cols: 4, description: '请确保唯一' },
-      name: { label: '英文名', cols: 4 },
+      // id: { label: 'ID', cols: 3, description: '请确保唯一' },
+      name: { label: 'key', cols: 4, description: '请勿修改' },
       title: { label: '名称', cols: 4 },
+      isTable: { label: '显示为表格', type: 'switch', listable: false, cols: 4 },
       children: {
         label: '属性列表',
         type: 'array',
@@ -15,17 +16,17 @@ module.exports = class Property extends Model {
 
         fields: {
           id: {
-            label: 'ID', 
+            label: 'ID',
             horizontal: true,
             "label-cols": 2,
           },
           name: {
-            label: '名称', 
+            label: '名称',
             horizontal: true,
             "label-cols": 2,
           },
           title: {
-            label: '标题', 
+            label: '标题',
             horizontal: true,
             "label-cols": 2,
           },
@@ -36,7 +37,7 @@ module.exports = class Property extends Model {
   }
 
   static async options(name) {
-    const model = await this.findBy({name})
+    const model = await this.findBy({ name })
     const data = model.children.map(v => {
       return {
         text: v.title,

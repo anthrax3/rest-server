@@ -53,7 +53,8 @@ module.exports = class Model extends BaseModel {
       })
       return ret
     }
-    const top = topName ? _.find(tree, {[rhs]: topName}).children : tree
+    const topNode = _.find(tree, {[rhs]: topName})
+    const top = topName && topNode ? topNode.children : tree
     const options = [
       {
         text: '请选择...',

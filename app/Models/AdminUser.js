@@ -13,13 +13,17 @@ module.exports = class AdminUser extends Model {
   static async fields() {
     return {
       _id: { sortable: true },
-      username: { label: '用户名' },
-      password: { label: '密码', type: 'password', listable: false, autocomplete: 'new-password' },
-      
-      realname: { label: '真实姓名' },
-      avatar: { label: '头像', type: 'image', preview: { height: 300 } },
-      
-      role: { label: '角色', sortable: true },
+      username: { label: '用户名', cols: 3 },
+      password: { label: '密码', type: 'password', listable: false, autocomplete: 'new-password', cols: 3 },
+      realname: { label: '真实姓名', cols: 3 },
+      role: {
+        label: '角色', sortable: true, cols: 3, type: 'select', options: [
+          {text: '请选择'},
+          {text: '系统管理员', value: 'system'},
+          {text: '管理员', value: 'admin'},
+        ]
+      },
+      avatar: { label: '头像', type: 'image', preview: { height: 200 }, cols: 3 },
       created_at: { label: '注册时间', sortable: true },
     }
   }

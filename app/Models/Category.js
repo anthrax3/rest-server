@@ -21,7 +21,7 @@ module.exports = class Category extends Model {
         searchable: true, cols: 3
       },
       name: { label: '名称', searchable: true, cols: 3 },
-      icon: { label: '图标', cols: 3 },
+      icon: { label: '图标', cols: 3, type: 'image', height: 20 },
       sort: { label: '排序', sortable: true, type: 'number', format: 'Number', cols: 3 },
     }
   }
