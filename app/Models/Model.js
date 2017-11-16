@@ -10,7 +10,7 @@ const { HttpException } = require('@adonisjs/generic-exceptions')
 
 const arrayToTree = require("array-to-tree")
 
-class Model extends BaseModel {
+module.exports = class Model extends BaseModel {
 
   static get objectIDs() {
     return ['_id']
@@ -31,35 +31,41 @@ class Model extends BaseModel {
     return data
   }
 
-  static async treeOptions(lhs = '_id', rhs = 'name', parentField = 'parent_id', parentValue = null) {
+  static async treeOptions(lhs = '_id', rhs = 'name', topName = null, parentField = 'parent_id', parentValue = null) {
     let data = await this.select([lhs, rhs, parentField]).fetch()
     
     const tree = arrayToTree(data.toJSON(), {
       customID: '_id'
     })
     
-    const flatten = (items = [], level = 1) => {
+    const flatten = (items = [], level = topName ? -1 : 0) => {
       let ret = []
       level++
       items.forEach(item => {
         
         const option = {
           value: item[lhs],
-          text: _.padStart(item[rhs], level, '　'),
+          text: _.repeat('　', level) + item[rhs],
         }
+        
         ret.push(option)
         ret = ret.concat(flatten(item.children, level))
       })
       return ret
     }
+    const top = topName ? _.find(tree, {[rhs]: topName}).children : tree
     const options = [
       {
         text: '请选择...',
         value: null,
       }
-    ].concat(flatten(tree))
+    ].concat(flatten(top))
     
     return options
+  }
+
+  static parseObjectID(key, value) {
+    return this.formatObjectID(key, value)
   }
 
   async validate(data, rules = {}, messages = {}) {
@@ -87,9 +93,11 @@ class Model extends BaseModel {
     return Config.get('api.upload.url') + '/' + val
   }
 
+  static scopeListFields(query){
+    query.select(this.listFields || [])
+  }
+
   user() {
     return this.belongsTo('App/Models/User', 'user_id', '_id')
   }
 }
-
-module.exports = Model

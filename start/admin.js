@@ -17,7 +17,6 @@ Route.group(() => {
   Route.any('ueditor', 'Admin/UEditorController.handle')
 
   Route.get(':resource/options', 'Admin/ResourceController.options')
-  
   Route.get(':resource/grid', 'Admin/ResourceController.grid')
   Route.get(':resource/form', 'Admin/ResourceController.form')
   Route.get(':resource/view', 'Admin/ResourceController.view')
@@ -25,7 +24,7 @@ Route.group(() => {
   Route.resource(':resource', 'Admin/ResourceController')
 
 }).prefix('admin/api').middleware([
-  'auth:adminJwt',
+  // 'auth:adminJwt',
   'resource'
 ])
 

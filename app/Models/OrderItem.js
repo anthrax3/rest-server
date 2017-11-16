@@ -18,15 +18,15 @@ module.exports = class OrderItem extends Model {
         },
         {
           text: '专栏',
-          value: 'App/Models/Course'
+          value: 'Course'
         },
         {
           text: '一条',
-          value: 'App/Models/Post'
+          value: 'Post'
         },
         
       ] },
-      buyable_id: { label: '产品', ref: 'buyable.name' },
+      buyable_id: { label: '产品', ref: 'buyable.title' },
       price: { label: '价格' },
       started_at: { label: '生效时间' },
       expired_at: { label: '过期时间' },
@@ -46,7 +46,7 @@ module.exports = class OrderItem extends Model {
   }
 
   buyable () {
-    return this.morphTo('App/..', 'buyable_type', '_id', 'buyable_id')
+    return this.morphTo('App/Models', 'buyable_type', '_id', 'buyable_id')
   }
 
 }

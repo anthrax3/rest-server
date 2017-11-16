@@ -12,7 +12,8 @@ module.exports = class Ad extends Model {
   static async fields() {
     return {
       _id: { sortable: true },
-      name: { label: '名称', cols: 6 },
+      title: { label: '名称', cols: 6 },
+      name: { label: 'key', cols: 6 },
       type: { label: '类型', cols: 6 },
       items: { 
         label: '内容', 

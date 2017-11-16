@@ -37,12 +37,15 @@ module.exports = class Transform extends Command {
     // await this.syncNews()
     // await this.syncUsers()
     // await this.syncCourses()
-    await this.syncAssoc()
+    // await this.syncAssoc()
     // await this.syncOauth()
 
     // await this.syncOrders()
+
     // await this.syncDevices()
     // await this.syncSms()
+    // await this.syncComments()
+    await this.syncActions()
 
 
     db.close()
@@ -72,12 +75,46 @@ module.exports = class Transform extends Command {
   }
 
   async syncCategories() {
-    const cats = await t('categories')
+    // const cats = await t('categories').whereNotBetween('id', [100, 199])
+    const cats = [
+      { id: 1, name: '专栏分类', key: 'course', parent_id: null },
+      { id: 2, name: '书籍分类', key: 'book', parent_id: null },
+      { id: 3, name: '反馈建议', key: 'feedback', parent_id: null },
+
+      { id: 100, name: '职场', key: 'b', parent_id: 1 },
+      { id: 200, name: '用户', key: 'c', parent_id: 1 },
+
+      { name: '分析师', parent_id: 100 },
+      { name: '风控', parent_id: 100 },
+      { name: '运营', parent_id: 100 },
+      { name: '市场', parent_id: 100 },
+      { name: 'CEO', parent_id: 100 },
+      { name: '主管', parent_id: 100 },
+      { name: '其他', parent_id: 100 },
+
+      { name: '期货', parent_id: 200 },
+      { name: '证券', parent_id: 200 },
+      { name: '银行', parent_id: 200 },
+      { name: '外汇', parent_id: 200 },
+      { name: '基金', parent_id: 200 },
+      { name: '保险', parent_id: 200 },
+      { name: '信托', parent_id: 200 },
+      { name: 'P2P', parent_id: 200 },
+
+      { name: '视野', parent_id: 2 },
+      { name: '心理学', parent_id: 2 },
+      { name: '商业', parent_id: 2 },
+
+      { name: '程序bug', parent_id: 3 },
+      { name: '功能建议', parent_id: 3 },
+      { name: '行情相关', parent_id: 3 },
+      { name: '其他', parent_id: 3 },
+    ]
     await c('categories').delete({})
     await c('categories').insert(cats)
     let newCats = await c('categories').find()
 
-    newCats.forEach(v => {
+    newCats.forEach((v, k) => {
       if (!v.parent_id) {
         return true
       }
@@ -147,8 +184,10 @@ module.exports = class Transform extends Command {
 
     _.map(courses, v => {
       try {
+        v.title = v.name
         v.user_id = users[v.user_id]._id
         v.price = prices[v.id].price / 100
+        delete v.name
       } catch (e) { }
 
     })
@@ -157,11 +196,13 @@ module.exports = class Transform extends Command {
     const newCourses = _.keyBy(await c('courses').find(), 'id')
 
     posts.forEach(v => {
+      const course = newCourses[assoc[v.id].course_id]
       try {
-        
-        v.course_id = ObjectID(newCourses[assoc[v.id].course_id]._id)
+
+        v.course_id = ObjectID(course._id)
         v.user_id = ObjectID(users[v.user_id]._id)
         v.is_free = !!v.is_free
+        v.is_book = course.title == '金融领域必备的阅读储备库'
         v.price = price
       } catch (e) { }
     })
@@ -273,24 +314,23 @@ module.exports = class Transform extends Command {
     const courses = _.keyBy(await c('courses').find(), 'id')
     const posts = _.keyBy(await c('posts').find(), 'id')
 
-    
+
     const items = await t('order_items')
     _.map(items, (v) => {
-      delete v.user_id
       delete v.package_id
       delete v.price_id
 
       v.price /= 100
-      v.buyable_type = v.buyable_type.replace(/\\/g, '/')
+      v.buyable_type = v.buyable_type.split('\\').pop()
       let buyable_id = null
       switch (v.buyable_type) {
-        case 'App/Models/Course':
+        case 'Course':
           buyable_id = ObjectID(courses[v.buyable_id]._id)
           break;
-        case 'App/Models/Post':
+        case 'Post':
           buyable_id = ObjectID(posts[v.buyable_id]._id)
           break;
-        
+
       }
       v.buyable_id = buyable_id
     })
@@ -313,9 +353,10 @@ module.exports = class Transform extends Command {
 
     _.map(items, v => {
       try {
+        v.user_id = ObjectID(users[v.user_id]._id)
         v.order_id = ObjectID(newOrders[v.order_id]._id)
       } catch (e) {
-        
+
       }
     })
 
@@ -335,10 +376,79 @@ module.exports = class Transform extends Command {
       if (order_id && newOrders[order_id]) {
         v.order_id = ObjectID(newOrders[order_id]._id)
       }
-      
+
     })
     await c('pay_logs').delete({})
     await c('pay_logs').insert(payLogs)
+  }
+
+  async syncComments() {
+    const items = await t('comments')
+    const users = _.keyBy(await c('users').find(), 'id')
+    const courses = _.keyBy(await c('courses').find(), 'id')
+    const posts = _.keyBy(await c('posts').find(), 'id')
+
+    _.map(items, (v) => {
+      v.commentable_type = v.commentable_type.split('\\').pop()
+      let commentable_id = null
+      switch (v.commentable_type) {
+        case 'Course':
+          commentable_id = ObjectID(courses[v.commentable_id]._id)
+          break;
+        case 'Post':
+          commentable_id = ObjectID(posts[v.commentable_id]._id)
+          break;
+
+      }
+      v.is_top = !!v.is_top
+      v.user_id = ObjectID(users[v.user_id]._id)
+      v.commentable_id = commentable_id
+    })
+
+    await c('comments').delete({})
+    await c('comments').insert(items)
+  }
+
+  async syncActions() {
+    const actions = await t('actions').whereNot('name', 'view').whereIn('actionable_type', [
+      'App\\Models\\Post',
+      'App\\Models\\User',
+      'App\\Models\\Course',
+    ])
+    const users = _.keyBy(await c('users').find(), 'id')
+    const courses = _.keyBy(await c('courses').find(), 'id')
+    const posts = _.keyBy(await c('posts').find(), 'id')
+
+    
+    
+    actions.forEach((v, k) => {
+      v.actionable_type = v.actionable_type.split('\\').pop()
+      if (!users[v.user_id] || (
+        v.actionable_type == 'User' && !users[v.actionable_id]
+      )) {
+        // delete actions[k]
+        actions.splice(k, 1)
+        return 
+      }
+      v.user_id = ObjectID(users[v.user_id]._id)
+      
+      let actionable_id = null
+      switch (v.actionable_type) {
+        case 'Course':
+          actionable_id = ObjectID(courses[v.actionable_id]._id)
+          break;
+        case 'Post':
+          actionable_id = ObjectID(posts[v.actionable_id]._id)
+          break;
+        case 'User':
+          actionable_id = ObjectID(users[v.actionable_id]._id)
+          break;
+      }
+      v.actionable_id = actionable_id
+    })
+    // console.log(actions[0]);
+    await c('actions').delete({})
+    await c('actions').insert(actions)
   }
 
 

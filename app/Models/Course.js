@@ -2,6 +2,8 @@
 
 const Model = require('./Model')
 const User = require('./User')
+const Post = require('./Post')
+const Category = require('./Category')
 
 module.exports = class Course extends Model {
 
@@ -13,15 +15,34 @@ module.exports = class Course extends Model {
     return '专辑'
   }
 
+  // setCategoryIds(val) {
+  //   val.forEach(v => {
+  //     if (typeof v === 'string') {
+  //       v = ObjectID()
+  //     }
+  //   })
+  // }
+
   static async fields() {
     return {
       _id: { sortable: true },
-      name: { label: '专栏名称', cols: 6, block: true },
+      title: { label: '标题', cols: 4, block: true },
       user_id: {
-        label: '所属专家', type: 'select2', ref: "user.username", cols: 6,
+        label: '所属专家', type: 'select2', ref: "user.username", cols: 4,
         options: await User.options('_id', 'username', { role_id: 1 }), searchable: true,
-        sortable: true
+        sortable: true,
       },
+      category_ids: {
+        label: '所属分类', type: 'select',
+        ref: 'categories.name',
+        multiple: true, 
+        cols: 12,
+        // size: 10,
+        selectSize: 5,
+        searchable: true,
+        options: await Category.treeOptions('_id', 'name', '专栏分类')
+      },
+
       cover: {
         label: '列表封面图',
         type: 'image',
@@ -38,6 +59,15 @@ module.exports = class Course extends Model {
         listable: false
       },
       description: { label: '描述', cols: 12, type: 'textarea', listable: false },
+      // contents: {
+      //   listable: false,
+      //   label: '详情',
+      //   type: 'array',
+      //   fields: {
+      //     title: {label: '标题'},
+      //     body: {label: '内容', type: 'html'}
+      //   }
+      // },
       content1: { label: '简介', type: 'html', cols: 3, listable: false },
       content2: { label: '知识核心', type: 'html', cols: 3, listable: false },
       content3: { label: '你将获得', type: 'html', cols: 3, listable: false },
@@ -47,11 +77,37 @@ module.exports = class Course extends Model {
     }
   }
 
+  static get listFields() {
+    return ['_id', 'title', 'user_id', 'category_ids', 'image', 'cover', 'description', 'created_at']
+  }
+
+  static scopeListFields(query) {
+    query.select(this.listFields)
+  }
+
   getCover(val) {
     return this.uploadUri(val)
   }
 
   user() {
-    return this.belongsTo('App/Models/User', 'user_id', '_id')
+    return this.belongsTo('App/Models/User', 'user_id', '_id').select(User.listFields)
   }
+
+  categories() {
+    return this.referMany('App/Models/Category', '_id', 'category_ids')
+  }
+
+  posts() {
+    return this.hasMany('App/Models/Post', '_id', 'course_id').select(Post.listFields)
+  }
+
+  /**
+   * 获取最新的一条
+   */
+  post() {
+    return this.hasOne('App/Models/Post', '_id', 'course_id').select(Post.listFields).orderBy({
+      _id: -1
+    })
+  }
+
 }

@@ -6,7 +6,7 @@ const Property = use('App/Models/Property')
 const Oauth = use('App/Models/Oauth')
 
 
-class User extends Model {
+module.exports = class User extends Model {
   static get hidden() {
     return ['password']
   }
@@ -39,6 +39,10 @@ class User extends Model {
     }
   }
 
+  static get listFields() {
+    return '_id username nickname avatar'.split(' ')
+  }
+
   getAvatar(val) {
     return this.uploadUri(val)
   }
@@ -59,7 +63,9 @@ class User extends Model {
   qq(){
     return this.hasOne('App/Models/Oauth', '_id', 'user_id').where('type', 'qq')
   }
-  
-}
 
-module.exports = User
+  actions() {
+    return this.hasMany('App/Models/Action', '_id', 'user_id')
+  }
+
+}

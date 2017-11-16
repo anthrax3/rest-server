@@ -80,9 +80,12 @@ module.exports = class SiteController {
   async index({ request }) {
     const recommend = await Option.get('recommend')
     const pagesize = _.mapValues(_.keyBy(await Option.get('pagesize'), 'name'), 'value')
+    const ads = await Ad.findBy({name: 'index_ads'})
+    const courses = await Course.query().listFields().where({}).limit(parseInt(pagesize.home_courses)).fetch()
+    const recommend = await Course.query().listFields().find(recommend)
     return {
-      ads: await Ad.findBy({name: 'index_ads'}),
-      courses: await Course.select(['_id', 'name']).where({}).limit(parseInt(pagesize.home_courses)).fetch()
+      ads: ads,
+      courses: courses
     }
   }
   
