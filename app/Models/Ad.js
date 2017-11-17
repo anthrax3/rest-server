@@ -12,9 +12,9 @@ module.exports = class Ad extends Model {
   static async fields() {
     return {
       _id: { sortable: true },
-      title: { label: '名称', cols: 6 },
-      name: { label: 'key', cols: 6 },
-      type: { label: '类型', cols: 6 },
+      title: { label: '名称', cols: 4 },
+      name: { label: 'key', cols: 4, role: 'system' },
+      // type: { label: '类型', cols: 6 },
       items: { 
         label: '内容', 
         type: 'array', 
@@ -22,11 +22,9 @@ module.exports = class Ad extends Model {
         fields: {
           title: {label: '标题'},
           image: {label: '图片', type: 'image'},
-          course: {label: '专栏', type: 'select', options: await Course.options('_id', 'name')},
-          post: {label: '一条', type: 'select', options: await Post.options('_id', 'title')},
+          course_id: {label: '专栏', type: 'select', options: await Course.options('_id', 'title')},
+          post_id: {label: '一条/书', type: 'select', options: await Post.options('_id', 'title')},
           link: {label: '链接', description: '专栏/语音/链接 任选其一'},
-          // content: {type: 'html'},
-          // sort: {label: '排序', type: 'number', formatter: 'Number'}
         },
         
       },

@@ -30,6 +30,21 @@ module.exports = {
     }
   },
 
+  new: {
+    client: 'mongodb',
+    connection: {
+      host: Env.get('DB_HOST', 'localhost'),
+      port: Env.get('DB_PORT', 27017),
+      user: Env.get('DB_USER', 'root'),
+      password: Env.get('DB_PASSWORD', ''),
+      database: Env.get('DB_NEW_DATABASE', 'yizhi_new'),
+      auth: {
+         source: Env.get('DB_AUTH_SOURCE', 'admin'),
+         mechanism: Env.get('DB_AUTH_MECHANISM', 'MONGODB-CR')
+      }
+    }
+  },
+
   /*
   |--------------------------------------------------------------------------
   | Sqlite

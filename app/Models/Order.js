@@ -6,6 +6,10 @@ const OrderItem = use('App/Models/OrderItem')
 
 module.exports = class Order extends Model {
 
+  static get objectIDs() {
+    return ['_id', 'user_id']
+  }
+
   static get dates() {
     return super.dates.concat([
       'paid_at'

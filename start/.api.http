@@ -1,7 +1,7 @@
 @uri = http://localhost:5555/api
 @json = Content-Type: application/json
 @ajson = Accept: application/json
-@auth = Authorization: Bearer xxx
+@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTA5NDVkMzJhYWEyYzRjYzg4ODNkYWEiLCJpYXQiOjE1MTA5MDI1MDJ9.Jh0xqqD-_U_pqq8bC86efU1drykSv1yw8PPB2RJKJ8Q
 
 ###
 POST {{uri}}/login
@@ -12,6 +12,26 @@ POST {{uri}}/login
   "mobile": "17621443042",
   "password": "123456"
 }
+###
+GET {{uri}}/ads
+###
+GET {{uri}}/ads/index_ads
+
+###
+GET {{uri}}/ads/book_ads
+
+###
+GET {{uri}}/categories/course
+# GET {{uri}}/categories/book
+{{json}}
+
+{
+  "query": {
+    "with": ["children.children"]
+  }
+}
+
+
 
 ###
 GET {{uri}}/courses
@@ -20,12 +40,17 @@ GET {{uri}}/courses
 
 {
   "query": {
-    "with": ["user", "categories"],
+    "where": {
+      "category": "b"
+    },
+    "with": [],
     "page": 1,
-    "perPage": 2
+    "perPage": 3
   }
 }
 
+###
+GET {{uri}}/posts/weekly_book
 ###
 GET {{uri}}/posts
 {{json}}
@@ -48,7 +73,8 @@ GET {{uri}}/posts
 {
   "query": {
     "where": {
-      "is_free": true
+      "is_free": true,
+      "is_book": true
     },
     "with": ["user", "categories"]
   }

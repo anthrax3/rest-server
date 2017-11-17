@@ -14,7 +14,7 @@ ioc.singleton('Adonis/Raw/Database', (app) => {
 })
 
 const db = use('Adonis/Raw/Database').connection('old') //之前的MYSQL数据库
-const db2 = use('Database') //现在的MongoDB数据库
+const db2 = use('Database').connection('new') //现在的MongoDB数据库
 const t = name => db.table(name)
 const c = name => db2.collection(name)
 
@@ -30,67 +30,104 @@ module.exports = class Transform extends Command {
   async handle(args, options) {
     const tables = await db.raw('show tables')
 
+    // await this.syncNews()
 
-    // await this.syncAds()
+
     // await this.syncAdmin()
     // await this.syncCategories()
-    // await this.syncNews()
-    // await this.syncUsers()
-    // await this.syncCourses()
-    // await this.syncAssoc()
-    // await this.syncOauth()
 
+    // await this.syncUsers()
+    // await this.syncOauth()
+    // await this.syncCourses()
+    // await this.syncComments()
+    await this.syncAds()
+
+    // await this.syncActions()
+    // await this.syncAssoc()
     // await this.syncOrders()
 
     // await this.syncDevices()
-    // await this.syncSms()
-    // await this.syncComments()
-    await this.syncActions()
 
+    // await this.syncSms()
 
     db.close()
     db2.close()
     this.success('操作成功!')
   }
 
+  async list(collection, mapKey = '_id') {
+    let ret = _.keyBy(await c('courses').find(), 'id')
+    if (mapKey) {
+      ret = _.mapValues(ret, mapKey)
+    }
+    return ret
+  }
+
+  async insert(collection, data, preserve = false) {
+    if (!preserve) {
+      await c(collection).delete({})
+    }
+    await c(collection).insert(data)
+  }
+
   async syncAds() {
     let ads = await t('ads')
     let adItems = await t('ad_items')
+    const newCourses = await this.list('courses')
     adItems = _.groupBy(adItems, 'ad_id')
     _.map(ads, v => {
       v.items = adItems[v.id]
+      if (!v.items) {
+        return
+      }
+      v.items.forEach(item => {
+        if (String(item.link).match(/^course:/i)) {
+          const course_id = item.link.split(':').pop()
+          item.course_id = newCourses[course_id]
+        }
+      })
     })
     // console.log(ads);
-    await c('ads').delete({})
-    await c('ads').insert(ads)
+    
+    await this.insert('ads', ads)
   }
 
   async syncAdmin() {
     const data = await t('admin_users')
     data.forEach(v => {
+      if (!v.avatar) {
+        v.avatar = 'admin/images/一值启动图标512x512 - 副本.jpg'
+      }
+      v.role = 'admin'
       v.password = String(v.password).replace('$2y$', '$2a$')
     })
-    await c('admin_users').delete({})
-    await c('admin_users').insert(data)
+    data.unshift({
+      username: 'admin',
+      password: await use('Hash').make('123456'),
+      avatar: 'http://ozegq4sdx.bkt.clouddn.com/avatar/8.jpg',
+      role: 'system'
+    })
+    
+    await this.insert('admin_users', data)
   }
 
   async syncCategories() {
-    // const cats = await t('categories').whereNotBetween('id', [100, 199])
     const cats = [
-      { id: 1, name: '专栏分类', key: 'course', parent_id: null },
-      { id: 2, name: '书籍分类', key: 'book', parent_id: null },
-      { id: 3, name: '反馈建议', key: 'feedback', parent_id: null },
+      { id: 1, name: '专栏分类', key: 'course' },
+      { id: 2, name: '书籍分类', key: 'book' },
+      { id: 3, name: '反馈建议', key: 'feedback' },
 
       { id: 100, name: '职场', key: 'b', parent_id: 1 },
       { id: 200, name: '用户', key: 'c', parent_id: 1 },
 
-      { name: '分析师', parent_id: 100 },
-      { name: '风控', parent_id: 100 },
-      { name: '运营', parent_id: 100 },
-      { name: '市场', parent_id: 100 },
-      { name: 'CEO', parent_id: 100 },
-      { name: '主管', parent_id: 100 },
-      { name: '其他', parent_id: 100 },
+      { name: '期货', parent_id: 100 },
+      { name: '证券', parent_id: 100 },
+      { name: '银行', parent_id: 100 },
+      { name: '外汇', parent_id: 100 },
+      { name: '基金', parent_id: 100 },
+      { name: '保险', parent_id: 100 },
+      { name: '信托', parent_id: 100 },
+      { name: 'P2P', parent_id: 100 },
 
       { name: '期货', parent_id: 200 },
       { name: '证券', parent_id: 200 },
@@ -102,16 +139,16 @@ module.exports = class Transform extends Command {
       { name: 'P2P', parent_id: 200 },
 
       { name: '视野', parent_id: 2 },
-      { name: '心理学', parent_id: 2 },
-      { name: '商业', parent_id: 2 },
+      { name: '理财', parent_id: 2 },
+      { name: '职业', parent_id: 2 },
 
       { name: '程序bug', parent_id: 3 },
       { name: '功能建议', parent_id: 3 },
       { name: '行情相关', parent_id: 3 },
       { name: '其他', parent_id: 3 },
     ]
-    await c('categories').delete({})
-    await c('categories').insert(cats)
+    
+    await this.insert('categories', cats)
     let newCats = await c('categories').find()
 
     newCats.forEach((v, k) => {
@@ -121,8 +158,8 @@ module.exports = class Transform extends Command {
       const item = _.find(newCats, { id: v.parent_id })
       v.parent_id = ObjectID(item._id)
     })
-    await c('categories').delete({})
-    await c('categories').insert(newCats)
+    
+    await this.insert('categories', newCats)
   }
 
   async syncUsers() {
@@ -142,8 +179,7 @@ module.exports = class Transform extends Command {
       v.birthday = profile.birthday == 'null' ? null : profile.birthday
       v.cover = profile.cover
     })
-    await c('users').delete({})
-    await c('users').insert(data)
+    await this.insert('users', data)
   }
 
   async syncNews() {
@@ -151,20 +187,15 @@ module.exports = class Transform extends Command {
     const presses = await t('presses')
     const readings = await t('readings')
 
-    await c('news').delete({})
-    await c('presses').delete({})
-    await c('readings').delete({})
-
-    await c('news').insert(news)
+    await this.insert('news', news)
 
     const newNews = await c('news').find()
     presses.forEach(v => {
       v.news_id = _.find(news, { id: v.news_id })._id
     })
 
-
-    await c('presses').insert(presses)
-    await c('readings').insert(readings)
+    await this.insert('presses', presses)
+    await this.insert('readings', readings)
   }
 
   async syncCourses() {
@@ -173,9 +204,6 @@ module.exports = class Transform extends Command {
     const users = _.keyBy(await c('users').find(), 'id')
     let assoc = await t('course_posts')
     assoc = _.keyBy(assoc, 'post_id')
-
-    await c('courses').delete({})
-    await c('posts').delete({})
 
     const prices = _.keyBy(await t('prices').where({
       priceable_type: 'App\\Models\\Course',
@@ -191,7 +219,7 @@ module.exports = class Transform extends Command {
       } catch (e) { }
 
     })
-    await c('courses').insert(courses)
+    await this.insert('courses', courses)
 
     const newCourses = _.keyBy(await c('courses').find(), 'id')
 
@@ -202,12 +230,12 @@ module.exports = class Transform extends Command {
         v.course_id = ObjectID(course._id)
         v.user_id = ObjectID(users[v.user_id]._id)
         v.is_free = !!v.is_free
-        v.is_book = course.title == '金融领域必备的阅读储备库'
-        v.price = price
+        v.is_book = course.id == 4
+        v.price = 8
       } catch (e) { }
     })
 
-    await c('posts').insert(posts)
+    await this.insert('posts', posts)
   }
 
   async syncAssoc() {
@@ -225,12 +253,12 @@ module.exports = class Transform extends Command {
     })
 
     // console.dir(arrayToTree(props))
-    await c('properties').delete({})
-    await c('properties').insert(arrayToTree(props))
+    
+    await this.insert('properties', arrayToTree(props))
 
     const getColName = ns => inflection.pluralize(inflection.underscore(ns.split('\\').pop()))
 
-    // await c('properties').insert(props)
+    // await this.insert('properties', props)
 
     const newProps = _.keyBy(await c('properties').find(), 'name')
 
@@ -280,8 +308,8 @@ module.exports = class Transform extends Command {
       v.user_id = ObjectID(users[v.user_id]._id)
       v.data = JSON.parse(v.data)
     })
-    await c('oauths').delete({})
-    await c('oauths').insert(data)
+    
+    await this.insert('oauths', data)
   }
 
   async syncDevices() {
@@ -295,8 +323,8 @@ module.exports = class Transform extends Command {
 
     })
 
-    await c('devices').delete({})
-    await c('devices').insert(devices)
+    
+    await this.insert('devices', devices)
   }
 
   async syncSms() {
@@ -304,8 +332,8 @@ module.exports = class Transform extends Command {
     _.map(sms, v => {
       v.data = JSON.parse(v.data)
     })
-    await c('sms').delete({})
-    await c('sms').insert(sms)
+    
+    await this.insert('sms', sms)
   }
 
   async syncOrders() {
@@ -346,8 +374,8 @@ module.exports = class Transform extends Command {
 
       }
     })
-    await c('orders').delete({})
-    await c('orders').insert(orders)
+    
+    await this.insert('orders', orders)
 
     const newOrders = _.keyBy(await c('orders').find(), 'id')
 
@@ -360,8 +388,8 @@ module.exports = class Transform extends Command {
       }
     })
 
-    await c('order_items').delete({})
-    await c('order_items').insert(items)
+    
+    await this.insert('order_items', items)
 
     const payLogs = await t('paylogs')
     _.map(payLogs, v => {
@@ -378,8 +406,8 @@ module.exports = class Transform extends Command {
       }
 
     })
-    await c('pay_logs').delete({})
-    await c('pay_logs').insert(payLogs)
+    
+    await this.insert('pay_logs', payLogs)
   }
 
   async syncComments() {
@@ -401,12 +429,13 @@ module.exports = class Transform extends Command {
 
       }
       v.is_top = !!v.is_top
+      v.is_checked = !!v.is_checked
       v.user_id = ObjectID(users[v.user_id]._id)
       v.commentable_id = commentable_id
     })
 
-    await c('comments').delete({})
-    await c('comments').insert(items)
+    
+    await this.insert('comments', items)
   }
 
   async syncActions() {
@@ -419,8 +448,8 @@ module.exports = class Transform extends Command {
     const courses = _.keyBy(await c('courses').find(), 'id')
     const posts = _.keyBy(await c('posts').find(), 'id')
 
-    
-    
+
+
     actions.forEach((v, k) => {
       v.actionable_type = v.actionable_type.split('\\').pop()
       if (!users[v.user_id] || (
@@ -428,10 +457,10 @@ module.exports = class Transform extends Command {
       )) {
         // delete actions[k]
         actions.splice(k, 1)
-        return 
+        return
       }
       v.user_id = ObjectID(users[v.user_id]._id)
-      
+
       let actionable_id = null
       switch (v.actionable_type) {
         case 'Course':
@@ -447,8 +476,8 @@ module.exports = class Transform extends Command {
       v.actionable_id = actionable_id
     })
     // console.log(actions[0]);
-    await c('actions').delete({})
-    await c('actions').insert(actions)
+    
+    await this.insert('actions', actions)
   }
 
 

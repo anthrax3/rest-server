@@ -2,6 +2,7 @@
 
 const Model = require('./Model')
 const Config = use('Config')
+const _ = require('lodash')
 
 module.exports = class AdminUser extends Model {
   static get hidden() {
@@ -30,6 +31,16 @@ module.exports = class AdminUser extends Model {
 
   getAvatar(val) {
     return this.uploadUri(val)
+  }
+
+  isRole(role) {
+    if (!role) {
+      return true
+    }
+    if (_.isString(role)) {
+      return role == this.role
+    }
+    return role.includes(this.role)
   }
 
   static boot() {

@@ -82,7 +82,7 @@ module.exports = class SiteController {
     const pagesize = _.mapValues(_.keyBy(await Option.get('pagesize'), 'name'), 'value')
     const ads = await Ad.findBy({name: 'index_ads'})
     const courses = await Course.query().listFields().where({}).limit(parseInt(pagesize.home_courses)).fetch()
-    const recommend = await Course.query().listFields().find(recommend)
+    const recommended = await Course.query().listFields().find(recommend)
     return {
       ads: ads,
       courses: courses

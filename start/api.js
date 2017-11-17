@@ -4,6 +4,7 @@ const Route = use('Route')
 Route.group(() => {
 
   Route.get('index', 'Api/SiteController.index')
+  Route.get('posts/weekly_book', 'Api/PostController.weeklyBook')
   Route.post('login', 'Api/SiteController.login')
   
 }).prefix('api').middleware([

@@ -32,6 +32,8 @@ module.exports = class Course extends Model {
         options: await User.options('_id', 'username', { role_id: 1 }), searchable: true,
         sortable: true,
       },
+      price: { label: '价格', cols: 4, formatter: 'Number', type: 'number' },
+      
       category_ids: {
         label: '所属分类', type: 'select',
         ref: 'categories.name',
@@ -59,15 +61,6 @@ module.exports = class Course extends Model {
         listable: false
       },
       description: { label: '描述', cols: 12, type: 'textarea', listable: false },
-      // contents: {
-      //   listable: false,
-      //   label: '详情',
-      //   type: 'array',
-      //   fields: {
-      //     title: {label: '标题'},
-      //     body: {label: '内容', type: 'html'}
-      //   }
-      // },
       content1: { label: '简介', type: 'html', cols: 3, listable: false },
       content2: { label: '知识核心', type: 'html', cols: 3, listable: false },
       content3: { label: '你将获得', type: 'html', cols: 3, listable: false },
@@ -78,7 +71,7 @@ module.exports = class Course extends Model {
   }
 
   static get listFields() {
-    return ['_id', 'title', 'user_id', 'category_ids', 'image', 'cover', 'description', 'created_at']
+    return '_id title tag subhead user_id category_ids description pv image cover price description created_at'.split(' ')
   }
 
   static scopeListFields(query) {

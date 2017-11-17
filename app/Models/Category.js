@@ -43,4 +43,8 @@ module.exports = class Category extends Model {
     return this.belongsTo('App/Models/Category', 'parent_id', '_id')
   }
 
+  children() {
+    return this.hasMany('App/Models/Category', '_id', 'parent_id')
+  }
+
 }

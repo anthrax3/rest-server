@@ -35,8 +35,14 @@ module.exports = class ResourceController {
     }
   }
 
-  async form({ request, Model, model }) {
-    const fields = _.omitBy(await Model.fields(), (v, k) => v.editable === false || ['_id', 'created_at', 'updated_at', 'actions'].includes(k))
+  async form({ request, Model, model, auth }) {
+    console.log(auth.user.role);
+    const fields = _.omitBy(await Model.fields(), (v, k) => {
+      const ignoredFields = [
+        '_id', 'created_at', 'updated_at', 'actions'
+      ]
+      return v.editable === false || ignoredFields.includes(k) || !auth.user.isRole(v.role)
+    })
     return {
       labels: await Model.labels(),
       fields: fields,
@@ -52,8 +58,11 @@ module.exports = class ResourceController {
   }
 
   async store({ request, auth, Model, model }) {
-    const data = request.all()
+    const fields = await Model.fields()
+    const data = _.omitBy(request.all(), (v, k) => !auth.user.isRole(fields[k].role))
+    
     await model.validate(data)
+    
     model.fill(data)
     await model.save()
     return model

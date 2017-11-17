@@ -19,9 +19,16 @@ class Resource {
       }
 
       if (params.id) {
-        const ret = await Model.query(query).where({
+        let where = {
           _id: params.id
-        }).limit(1).fetch()
+        }
+        if (params.id.length != 24) {
+          where = {
+            or: [{ name: params.id }, { key: params.id }]
+          }
+        }
+
+        const ret = await Model.query(query).where(where).limit(1).fetch()
         if (ret.rows.length < 1) {
           throw new HttpException('模型不存在', 404)
         }
@@ -40,7 +47,7 @@ class Resource {
       }
 
       _.mapValues(query.where, (v, k) => {
-        if (v === '' || v === null) {
+        if (v === '' || v === null || _.isEqual(v, []) || _.isEqual(v, [null])) {
           return delete query.where[k]
         }
         const isDate = ['created_at', 'updated_at'].includes(k)
@@ -53,14 +60,15 @@ class Resource {
           query.where[k] = { gte: begin, lte: end }
           return
         }
-        if (typeof v === 'string' && !Model.objectIDs.includes(k)) {
+        if (_.isString(v) && v.includes('*')) {
 
           query.where[k] = new RegExp(v, 'i')
         }
+        if (_.isArray(v)) {
+          query.where[k] = { in: v }
+        }
       })
-      console.log(query.where);
-
-
+      // console.log(query.where);
       ctx.query = query
       ctx.resource = resource
       ctx.Model = Model
