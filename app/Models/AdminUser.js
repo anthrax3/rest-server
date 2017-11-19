@@ -11,7 +11,7 @@ module.exports = class AdminUser extends Model {
   static get label() {
     return '管理员'
   }
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       username: { label: '用户名', cols: 3 },

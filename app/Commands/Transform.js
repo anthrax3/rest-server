@@ -249,7 +249,9 @@ module.exports = class Transform extends Command {
       delete v.created_at
       delete v.updated_at
       delete v.description
-      // delete v.name
+      if (v.name == 'profession') {
+        v.name = 'trade'
+      }
     })
 
     // console.dir(arrayToTree(props))

@@ -6,7 +6,7 @@ module.exports = class Reading extends Model {
   static get label () {
     return '深解读'
   }
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       title: { label: '标题' }

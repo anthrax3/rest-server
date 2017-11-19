@@ -3,7 +3,7 @@
 const Model = require('./Model')
 
 module.exports = class Setting extends Model {
-  static async fields() {
+  static get fields() {
     return {
       press_description: { label: '首页轻阅读描述', type: 'textarea', cols: 10 },
       book: {

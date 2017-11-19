@@ -13,18 +13,18 @@ module.exports = class Post extends Model {
   static get label() {
     return '一条'
   }
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
 
       course_id: {
         label: '所属专辑', type: 'select2', ref: "course.title", cols: 4,
-        options: await use('App/Models/Course').options('_id', 'title'), searchable: true,
+        options: this.getOptions('course_id'), searchable: true,
         sortable: true
       },
       user_id: {
         label: '所属专家', type: 'select2', ref: "user.username", cols: 4,
-        options: await User.options('_id', 'username', { role_id: 1 }), searchable: true,
+        options: this.getOptions('user_id'), searchable: true,
         sortable: true
       },
 
@@ -44,7 +44,7 @@ module.exports = class Post extends Model {
         // size: 10,
         selectSize: 5,
         searchable: true,
-        options: await Category.treeOptions('_id', 'name', '书籍分类'),
+        options: this.getOptions('category_ids'),
         showWhen: 'is_book'
       },
 
@@ -53,6 +53,14 @@ module.exports = class Post extends Model {
       description: { label: '描述', type: 'textarea', listable: false, cols: 12, },
       content: { label: '详情', type: 'html', listable: false, cols: 6, },
       created_at: { label: '创建时间' },
+    }
+  }
+
+  static async buildOptions() {
+    this.options = {
+      course_id: await Course.options('_id', 'title'),
+      category_ids: await Category.treeOptions('_id', 'name', '书籍分类'),
+      user_id: await User.options('_id', 'username', { role_id: 1 }),      
     }
   }
 

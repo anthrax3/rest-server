@@ -5,13 +5,13 @@ const User = use('App/Models/User')
 
 module.exports = class Comment extends Model {
   static get objectIDs() {
-    return ['_id', 'commentable_id']
+    return ['_id']
   }
   static get label() {
     return '评论'
   }
 
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       commentable_type: { label: '类型', options: [
@@ -31,7 +31,6 @@ module.exports = class Comment extends Model {
       commentable_id: { label: '文章', ref: 'commentable.title' },
       user_id: {
         label: '用户', type: 'select2', ref: "user.username", cols: 4,
-        // options: await User.options('_id', 'username', { role_id: 1 }), searchable: true,
         sortable: true,
       },
       is_top: { label: '是否置顶', type: 'switch' },

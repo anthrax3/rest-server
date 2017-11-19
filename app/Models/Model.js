@@ -12,6 +12,11 @@ const arrayToTree = require("array-to-tree")
 
 module.exports = class Model extends BaseModel {
 
+  static get iocHooks () {
+    return ['_bootIfNotBooted']
+    // return ['_bootIfNotBooted', 'buildOptions']
+  }
+
   static get objectIDs() {
     return ['_id']
   }
@@ -29,6 +34,19 @@ module.exports = class Model extends BaseModel {
       value: null,
     })
     return data
+  }
+
+  static async buildOptions() {
+    this.options = {
+      // course_id: await Course.options('_id', 'title'),
+      // post_id: await Course.options('_id', 'title'),
+      // user_id: await Course.options('_id', 'username'),
+      // category_ids: await Course.options('_id', 'name'),
+    }
+  }
+
+  static getOptions(key) {
+    return this.options[key]
   }
 
   static async treeOptions(lhs = '_id', rhs = 'name', topName = null, parentField = 'parent_id', parentValue = null) {
@@ -76,7 +94,7 @@ module.exports = class Model extends BaseModel {
   }
 
   static async labels() {
-    return _.mapValues(await this.fields(), 'label')
+    return _.mapValues(this.fields, 'label')
   }
 
   rules() {

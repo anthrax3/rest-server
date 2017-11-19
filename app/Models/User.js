@@ -13,7 +13,7 @@ module.exports = class User extends Model {
   static get label() {
     return '用户'
   }
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       mobile: { label: '手机号', cols: 4, searchable: true },
@@ -21,8 +21,9 @@ module.exports = class User extends Model {
       password: { label: '密码', cols: 4, type: 'password', autocomplete: 'new-password',listable: false },
       realname: { label: '真实姓名', cols: 4, searchable: true },
       points: { label: '积分', cols: 4, sortable: true , editable: false},
-      position: { label: '职位', cols: 4, type: 'select', options: await Property.options('position'), searchable: true},
-      trade: { label: '行业', cols: 4, type: 'select', options: await Property.options('profession'), searchable: true},
+      type: { label: '身份', cols: 4, type: 'radiolist', options: this.getOptions('type'), searchable: true},
+      position: { label: '职位', cols: 4, type: 'select', options: this.getOptions('position'), searchable: true},
+      trade: { label: '行业', cols: 4, type: 'select', options: this.getOptions('trade'), searchable: true},
       created_at: { label: '注册时间', sortable: true, searchable: true },
       wx: {
         label: '微信',
@@ -34,8 +35,19 @@ module.exports = class User extends Model {
         editable: false,
         listable: false,
         ref: 'oauths._id',
-        fields: _.omit(await Oauth.fields(), ['_id', 'user_id'])
+        fields: _.omit(Oauth.fields, ['_id', 'user_id'])
       },
+    }
+  }
+
+  static async buildOptions() {
+    this.options = {
+      position: await Property.options('position'),
+      trade: await Property.options('trade'),
+      type: [
+        {text: '从业者', value: 1},
+        {text: '投资者', value: 2},
+      ]
     }
   }
 

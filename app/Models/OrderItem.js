@@ -9,7 +9,7 @@ module.exports = class OrderItem extends Model {
     return '订单产品'
   }
 
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       buyable_type: { label: '产品类型', options: [

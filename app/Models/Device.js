@@ -6,7 +6,7 @@ module.exports = class Device extends Model {
   static get label () {
     return '设备'
   }
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       os: { label: '操作系统' },

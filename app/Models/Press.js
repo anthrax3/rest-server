@@ -6,7 +6,7 @@ module.exports = class Press extends Model {
   static get label () {
     return '轻阅读'
   }
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       news_id: {label: '关联新闻', ref: "news.title"},

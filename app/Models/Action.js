@@ -11,7 +11,7 @@ module.exports = class Action extends Model {
     return '评论'
   }
 
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       actionable_type: { label: '类型', options: [
@@ -34,8 +34,11 @@ module.exports = class Action extends Model {
       actionable_id: { label: '文章', ref: 'actionable.title' },
       user_id: {
         label: '用户', type: 'select2', ref: "user.username", cols: 4,
-        // options: await User.options('_id', 'username', { role_id: 1 }), searchable: true,
         sortable: true,
+        ajaxOptions: {
+          resource: 'users',
+          text: 'username',
+        },
       },
 
       created_at: { label: '操作时间' },

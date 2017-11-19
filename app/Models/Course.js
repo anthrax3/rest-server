@@ -23,13 +23,13 @@ module.exports = class Course extends Model {
   //   })
   // }
 
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       title: { label: '标题', cols: 4, block: true },
       user_id: {
         label: '所属专家', type: 'select2', ref: "user.username", cols: 4,
-        options: await User.options('_id', 'username', { role_id: 1 }), searchable: true,
+        options: this.getOptions('user_id'), searchable: true,
         sortable: true,
       },
       price: { label: '价格', cols: 4, formatter: 'Number', type: 'number' },
@@ -42,7 +42,7 @@ module.exports = class Course extends Model {
         // size: 10,
         selectSize: 5,
         searchable: true,
-        options: await Category.treeOptions('_id', 'name', '专栏分类')
+        options: this.getOptions('category_ids')
       },
 
       cover: {
@@ -70,6 +70,13 @@ module.exports = class Course extends Model {
     }
   }
 
+  static async buildOptions() {
+    this.options = {
+      user_id: await User.options('_id', 'username', { role_id: 1 }),
+      category_ids: await Category.treeOptions('_id', 'name', '专栏分类'),
+    }
+  }
+
   static get listFields() {
     return '_id title tag subhead user_id category_ids description pv image cover price description created_at'.split(' ')
   }
@@ -79,6 +86,9 @@ module.exports = class Course extends Model {
   }
 
   getCover(val) {
+    return this.uploadUri(val)
+  }
+  getImage(val) {
     return this.uploadUri(val)
   }
 

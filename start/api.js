@@ -6,6 +6,7 @@ Route.group(() => {
   Route.get('index', 'Api/SiteController.index')
   Route.get('posts/weekly_book', 'Api/PostController.weeklyBook')
   Route.post('login', 'Api/SiteController.login')
+  Route.post('payment/hook', 'Api/PaymentController.hook')
   
 }).prefix('api').middleware([
   'authenticator:jwt'

@@ -3,7 +3,7 @@
 const Model = require('./Model')
 
 module.exports = class Property extends Model {
-  static async fields() {
+  static get fields() {
     return {
       // id: { label: 'ID', cols: 3, description: '请确保唯一' },
       name: { label: 'key', cols: 4, description: '请勿修改' },

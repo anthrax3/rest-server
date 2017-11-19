@@ -4,7 +4,7 @@ const Model = require('./Model')
 
 module.exports = class Option extends Model {
 
-  static async fields() {
+  static get fields() {
     return {
       title: { label: '名称',cols: 3 },
       name: { label: 'key', description: '请勿修改',cols: 3, role: 'admin' },

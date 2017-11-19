@@ -16,18 +16,22 @@
 require('./functions')
 
 const Route = use('Route')
-const Drive = use('Drive')
 
-Route.get('/', async ({ request }) => {
-  return await use('App/Models/Category').treeOptions('_id', 'name')
-})
 
 async function main() {
+  delete require.cache['/Users/xuesong/node/rest-server/node_modules/lucid-mongo/src/LucidMongo/Relations/ReferMany.js']
+  
   // const Course = use('App/Models/Course')
-  const user = await use('App/Models/User').findBy({id: 13642})
-  console.log((await user.actions().where('name', 'collection').with('actionable', builder => {
-    builder.select(['_id', 'title'])
-  }).fetch()).toJSON());
+  const courses = await use('App/Models/Course').with('categories').select([
+    '_id','title', 'category_ids'
+  ]).limit(3).fetch()
+  log(courses.toJSON());
+  
+  // console.log((await user.actions().where('name', 'collection').with('actionable', builder => {
+  //   builder.select(['_id', 'title'])
+  // }).fetch()).toJSON());
+
+  // const Drive = use('Drive')
   // console.log((await Course.query().listFields().limit(1).fetch()).toJSON());
   // console.log(await Drive.getUrl('node/2.jpg'));
   // console.log(await use('App/Models/Category').treeOptions('_id', 'name', '专栏分类'));

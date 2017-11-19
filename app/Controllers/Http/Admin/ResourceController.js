@@ -9,7 +9,7 @@ const { HttpException } = require('@adonisjs/generic-exceptions')
 module.exports = class ResourceController {
 
   async index({ request, Model, query }) {
-    const fields = _.omitBy(await Model.fields(), (v, k) => v.listable === false)
+    const fields = _.omitBy(Model.fields, (v, k) => v.listable === false)
     const { page, perPage = 20 } = query
     const offset = (page - 1) * perPage
     const limit = perPage
@@ -26,8 +26,9 @@ module.exports = class ResourceController {
   }
 
   async grid({ request, Model }) {
-    const searchFields = _.pickBy(await Model.fields(), 'searchable')
-    const fields = _.omitBy(await Model.fields(), (v, k) => v.listable === false)
+    await Model.buildOptions()
+    const searchFields = _.pickBy(Model.fields, 'searchable')
+    const fields = _.omitBy(Model.fields, (v, k) => v.listable === false)
     return {
       searchFields: searchFields,
       searchModel: _.mapValues(searchFields, v => null),
@@ -36,8 +37,8 @@ module.exports = class ResourceController {
   }
 
   async form({ request, Model, model, auth }) {
-    console.log(auth.user.role);
-    const fields = _.omitBy(await Model.fields(), (v, k) => {
+    await Model.buildOptions()
+    const fields = _.omitBy(Model.fields, (v, k) => {
       const ignoredFields = [
         '_id', 'created_at', 'updated_at', 'actions'
       ]
@@ -50,15 +51,16 @@ module.exports = class ResourceController {
     }
   }
   async view({ request, Model, model }) {
+    await Model.buildOptions()
     return {
       labels: await Model.labels(),
-      fields: _.omitBy(await Model.fields(), (v, k) => v.viewable === false || ['actions'].includes(k)),
+      fields: _.omitBy(Model.fields, (v, k) => v.viewable === false || ['actions'].includes(k)),
       model: model,
     }
   }
 
   async store({ request, auth, Model, model }) {
-    const fields = await Model.fields()
+    const fields = Model.fields
     const data = _.omitBy(request.all(), (v, k) => !auth.user.isRole(fields[k].role))
     
     await model.validate(data)

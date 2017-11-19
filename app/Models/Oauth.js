@@ -15,7 +15,7 @@ module.exports = class Oauth extends Model {
 
   }
 
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       user_id: {
@@ -23,7 +23,7 @@ module.exports = class Oauth extends Model {
         type: 'select2', 
         ref: "user.username", 
         cols: 6,
-        options: await use('App/Models/User').options('_id', 'username'), 
+        
         searchable: true,
         sortable: true
       },

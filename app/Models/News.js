@@ -8,7 +8,7 @@ module.exports = class News extends Model {
     return '新闻'
   }
 
-  static async fields() {
+  static get fields() {
     return {
       _id: { sortable: true },
       title: { label: '标题', cols: 3, sortable: true, searchable: true},

@@ -20,7 +20,7 @@ module.exports = class Order extends Model {
     return '订单'
   }
 
-  static async fields() {
+  static get fields() {
     return {
       // _id: { sortable: true },
       no: { label: '编号', sortable: true, searchable: true },
@@ -30,7 +30,10 @@ module.exports = class Order extends Model {
         type: 'select2',
         ref: "user.username",
         cols: 6,
-        options: await User.options('_id', 'username'),
+        ajaxOptions: {
+          resource: 'users',
+          text: 'username',
+        },
         searchable: true,
         sortable: true
       },
@@ -51,7 +54,7 @@ module.exports = class Order extends Model {
         editable: false,
         listable: false,
         ref: 'items.buyable._id',
-        fields: _.omit(await OrderItem.fields(), ['_id', 'actions'])
+        fields: _.omit(OrderItem.fields, ['_id', 'actions'])
       },
       total: { label: '金额', sortable: true },
       created_at: { label: '创建时间' },
