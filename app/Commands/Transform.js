@@ -395,10 +395,11 @@ module.exports = class Transform extends Command {
 
     const payLogs = await t('paylogs')
     _.map(payLogs, v => {
-      v.data = JSON.parse(v.data)
+      v = Object.assign(v, JSON.parse(v.data))
+
       let order_id = null
       if (v.data.productId) {
-        order_id = parseInt(v.data.productId.match(/_(\d+)$/).pop())
+        // order_id = parseInt(v.data.productId.match(/_(\d+)$/).pop())
       } else if (v.data.optional) {
         order_id = parseInt(v.data.optional.order_id)
       }

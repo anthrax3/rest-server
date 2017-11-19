@@ -3,6 +3,7 @@
 const Model = require('./Model')
 const User = use('App/Models/User')
 const OrderItem = use('App/Models/OrderItem')
+const Event = use('Event')
 
 module.exports = class Order extends Model {
 
@@ -74,6 +75,21 @@ module.exports = class Order extends Model {
 
   items() {
     return this.hasMany('App/Models/OrderItem', '_id', 'order_id')
+  }
+
+  
+
+  getPayData() {
+    return {
+      no: this.no,
+      channel: this.payment_type,
+      title: this.title,
+      billno: this.no,
+      totalfee: this.total,
+      optional: {
+        order_id: this._id
+      }
+    }
   }
 
 }

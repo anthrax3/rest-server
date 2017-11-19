@@ -4,7 +4,7 @@ const Model = require('./Model')
 const Config = use('Config')
 const Property = use('App/Models/Property')
 const Oauth = use('App/Models/Oauth')
-
+const _ = require('lodash')
 
 module.exports = class User extends Model {
   static get hidden() {
@@ -78,6 +78,45 @@ module.exports = class User extends Model {
 
   actions() {
     return this.hasMany('App/Models/Action', '_id', 'user_id')
+  }
+
+  orders() {
+    return this.hasMany('App/Models/Order', '_id', 'user_id')
+  }
+
+  async buy(data, itemsData) {
+    data.no = [
+      'A',
+      (new Date).valueOf(),
+      parseInt(Math.random() * 9999)
+    ].join('')
+    
+    let total = 0
+
+    _.map(itemsData, item => {
+      item.title = item.buyable.title
+      item.price = item.buyable.price
+      item.qty = parseInt(item.qty) || 1
+      item.paid_at = null
+
+      total += item.price * item.qty
+    })
+    
+    if (!data.total) {
+      data.total = total
+    }
+
+    if (!data.title) {
+      data.title = itemsData[0].title
+    }
+    
+    data.paid_at = null
+
+    const order = await this.orders().create(data)
+    
+    const items = await order.items().createMany(itemsData)
+    Event.emit('user::buy')
+    return order
   }
 
 }
