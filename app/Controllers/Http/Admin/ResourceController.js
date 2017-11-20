@@ -90,8 +90,12 @@ module.exports = class ResourceController {
   }
 
   async options({ request, Model }) {
-    const { text = 'name', value = '_id', where = '{}' } = request.all()
-    return await Model.options(value, text, JSON.parse(where))
+    let { text = 'name', value = '_id', where = '{}' } = request.all()
+    where = JSON.parse(where)
+    if (where[text]) {
+      where[text] = new RegExp(where[text], 'i')
+    }
+    return await Model.fetchOptions(value, text, where)
   }
 
   async stat({ request, auth, Model }) {

@@ -40,9 +40,9 @@ module.exports = class Ad extends Model {
 
   static async buildOptions() {
     this.options = {
-      course_id: await Course.options('_id', 'title'),
-      post_id: await Post.options('_id', 'title', { is_book: false }),
-      book_id: await Post.options('_id', 'title', { is_book: true }),
+      course_id: await Course.fetchOptions('_id', 'title'),
+      post_id: await Post.fetchOptions('_id', 'title', { is_book: false }),
+      book_id: await Post.fetchOptions('_id', 'title', { is_book: true }),
     }
   }
 

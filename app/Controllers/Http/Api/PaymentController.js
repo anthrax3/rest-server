@@ -79,7 +79,8 @@ module.exports = class PaymentController {
         if (!order) {
           return 'fail: invalid order'
         }
-        Event.emit('order::paid', order)
+        await order.paid()
+        
       }
     }
 

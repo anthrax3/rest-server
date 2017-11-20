@@ -72,7 +72,7 @@ module.exports = class Course extends Model {
 
   static async buildOptions() {
     this.options = {
-      user_id: await User.options('_id', 'username', { role_id: 1 }),
+      user_id: await User.fetchOptions('_id', 'username', { role_id: 1 }),
       category_ids: await Category.treeOptions('_id', 'name', '专栏分类'),
     }
   }
@@ -102,6 +102,12 @@ module.exports = class Course extends Model {
 
   posts() {
     return this.hasMany('App/Models/Post', '_id', 'course_id').select(Post.listFields)
+  }
+
+  comments() {
+    return this.manyThrough('App/Models/Post', 'comments', '_id', 'course_id').where({
+      is_top: true
+    })
   }
 
   /**

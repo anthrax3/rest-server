@@ -42,4 +42,10 @@ module.exports = class SiteController {
       url: fileUrl
     }
   }
+
+  async sendCode({ request, auth }) {
+    const Sms = use('App/Models/Sms')
+    const { mobile, captcha, isLogin } = request.all()
+    let ret = await use('Sms').sendCode()
+  }
 }

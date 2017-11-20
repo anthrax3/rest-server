@@ -57,10 +57,13 @@ module.exports = class Post extends Model {
   }
 
   static async buildOptions() {
+    const User = use('App/Models/User')
+    const Course = use('App/Models/Course')
+    const Category = use('App/Models/Category')
     this.options = {
-      course_id: await Course.options('_id', 'title'),
+      course_id: await Course.fetchOptions('_id', 'title'),
       category_ids: await Category.treeOptions('_id', 'name', '书籍分类'),
-      user_id: await User.options('_id', 'username', { role_id: 1 }),      
+      user_id: await User.fetchOptions('_id', 'username', { role_id: 1 }),      
     }
   }
 
@@ -97,7 +100,7 @@ module.exports = class Post extends Model {
   }
 
   comments() {
-    return this.morphMany('App/Models/Comment', 'commentable_type', 'commentable_id').orderBy('-_id')
+    return this.morphMany('App/Models/Comment', 'commentable_type', 'commentable_id').with('user').orderBy('-_id')
   }
 
 }

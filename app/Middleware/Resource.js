@@ -11,7 +11,12 @@ class Resource {
 
     const resource = params.resource
     if (resource) {
-      const Model = use('App/Models/' + inflection.classify(resource))
+      let className = inflection.classify(resource)
+      if (['sms'].includes(resource)) {
+        //no need to singularize
+        className = inflection.camelize(resource)
+      }
+      const Model = use('App/Models/' + className)
 
       let query = request.input('query', {})
       if (typeof query === 'string') {
@@ -60,9 +65,9 @@ class Resource {
           query.where[k] = { gte: begin, lte: end }
           return
         }
-        if (_.isString(v) && v.includes('*')) {
+        if (_.isString(v) && v.includes('regexp:')) {
 
-          query.where[k] = new RegExp(v, 'i')
+          query.where[k] = new RegExp(v.replace('regexp:', ''), 'i')
         }
         if (_.isArray(v)) {
           query.where[k] = { in: v }

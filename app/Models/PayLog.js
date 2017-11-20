@@ -14,7 +14,12 @@ module.exports = class PayLog extends Model {
       transaction_fee: { label: '交易金额' },
       trade_success: { label: '交易成功', type: 'switch' },
       timestamp: {label: '时间'},
-      message_detail: {label: '交易数据', listable: false}
+      message_detail: {label: '交易数据', listable: false},
+      actions: {
+        buttons: {
+          edit: false
+        }
+      }
     }
   }
 

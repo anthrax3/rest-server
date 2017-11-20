@@ -5,7 +5,7 @@ const User = use('App/Models/User')
 
 module.exports = class Comment extends Model {
   static get objectIDs() {
-    return ['_id']
+    return ['_id', 'commentable_id', 'user_id']
   }
   static get label() {
     return '评论'
@@ -54,6 +54,10 @@ module.exports = class Comment extends Model {
 
   commentable () {
     return this.morphTo('App/Models', 'commentable_type', '_id', 'commentable_id')
+  }
+
+  user() {
+    return this.belongsTo('App/Models/User', 'user_id', '_id').select(User.listFields)
   }
   
 

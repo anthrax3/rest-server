@@ -12,16 +12,16 @@ const arrayToTree = require("array-to-tree")
 
 module.exports = class Model extends BaseModel {
 
-  static get iocHooks () {
-    return ['_bootIfNotBooted']
-    // return ['_bootIfNotBooted', 'buildOptions']
-  }
+  // static get iocHooks () {
+  //   return ['_bootIfNotBooted']
+  //   // return ['_bootIfNotBooted', 'buildOptions']
+  // }
 
   static get objectIDs() {
     return ['_id']
   }
 
-  static async options(lhs, rhs, where = {}) {
+  static async fetchOptions(lhs, rhs, where = {}) {
     let data = await this.select([lhs, rhs]).where(where).fetch()
     data = _.map(data.toJSON(), v => {
       return {
@@ -38,10 +38,10 @@ module.exports = class Model extends BaseModel {
 
   static async buildOptions() {
     this.options = {
-      // course_id: await Course.options('_id', 'title'),
-      // post_id: await Course.options('_id', 'title'),
-      // user_id: await Course.options('_id', 'username'),
-      // category_ids: await Course.options('_id', 'name'),
+      // course_id: await Course.fetchOptions('_id', 'title'),
+      // post_id: await Course.fetchOptions('_id', 'title'),
+      // user_id: await Course.fetchOptions('_id', 'username'),
+      // category_ids: await Course.fetchOptions('_id', 'name'),
     }
   }
 

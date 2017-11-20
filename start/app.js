@@ -21,7 +21,8 @@ const providers = [
   '@adonisjs/drive/providers/DriveProvider',
   'lucid-mongo/providers/LucidMongoProvider',
 
-  __dirname + '/../app/Providers/DriveProvider',
+  __dirname + '/../app/Providers/Drive/DriveProvider',
+  __dirname + '/../app/Providers/Sms/SmsProvider',
 
 
   

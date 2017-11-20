@@ -14,7 +14,7 @@ ioc.singleton('Adonis/Raw/Database', (app) => {
 })
 
 const db = use('Adonis/Raw/Database').connection('old') //之前的MYSQL数据库
-const db2 = use('Database').connection('new') //现在的MongoDB数据库
+const db2 = use('Database').connection('mongodb') //现在的MongoDB数据库
 const t = name => db.table(name)
 const c = name => db2.collection(name)
 
@@ -39,8 +39,8 @@ module.exports = class Transform extends Command {
     // await this.syncUsers()
     // await this.syncOauth()
     // await this.syncCourses()
-    // await this.syncComments()
-    await this.syncAds()
+    await this.syncComments()
+    // await this.syncAds()
 
     // await this.syncActions()
     // await this.syncAssoc()
@@ -324,17 +324,14 @@ module.exports = class Transform extends Command {
       } catch (e) { }
 
     })
-
-    
     await this.insert('devices', devices)
   }
 
   async syncSms() {
     const sms = await t('sms')
     _.map(sms, v => {
-      v.data = JSON.parse(v.data)
+      v.data = JSON.parse(v.data).body
     })
-    
     await this.insert('sms', sms)
   }
 
@@ -343,8 +340,6 @@ module.exports = class Transform extends Command {
     const users = _.keyBy(await c('users').find(), 'id')
     const courses = _.keyBy(await c('courses').find(), 'id')
     const posts = _.keyBy(await c('posts').find(), 'id')
-
-
     const items = await t('order_items')
     _.map(items, (v) => {
       delete v.package_id
@@ -433,11 +428,15 @@ module.exports = class Transform extends Command {
       }
       v.is_top = !!v.is_top
       v.is_checked = !!v.is_checked
-      v.user_id = ObjectID(users[v.user_id]._id)
+      try{
+        v.user_id = ObjectID(users[v.user_id]._id)
+      } catch (e) {
+        
+      }
+      
       v.commentable_id = commentable_id
     })
 
-    
     await this.insert('comments', items)
   }
 

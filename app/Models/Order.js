@@ -92,4 +92,17 @@ module.exports = class Order extends Model {
     }
   }
 
+  async paid() {
+    const now = new Date
+    this.paid_at = now
+    await Promise.all(this.items.map(item => {
+      item.started_at = now
+      item.expired_at = new Date(now.valueOf() + 365 * 86400000)
+      item.paid_at = now
+      item.save()
+    }))
+    await this.save()
+    Event.emit('order::paid', this)
+  }
+
 }

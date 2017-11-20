@@ -4,7 +4,7 @@
 @auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTA5NDVkMzJhYWEyYzRjYzg4ODNkYWEiLCJpYXQiOjE1MTA5MDI1MDJ9.Jh0xqqD-_U_pqq8bC86efU1drykSv1yw8PPB2RJKJ8Q
 
 ###
-POST {{uri}}/payment/verify-iap
+POST {{uri}}/iap
 {{json}}
 
 {
@@ -48,12 +48,28 @@ GET {{uri}}/courses
 
 {
   "query": {
-    "where": {
-      "category": "b"
-    },
     "with": [],
     "page": 1,
     "perPage": 3
+  }
+}
+###
+GET {{uri}}/courses/5a12a5d86bd4a488703307a6
+{{json}}
+
+{
+  "query": {
+    "with": ["comments"]
+  }
+}
+
+###
+GET {{uri}}/posts/5a12a5d86bd4a488703307d1
+{{json}}
+
+{
+  "query": {
+    "with": ["comments.user"]
   }
 }
 
@@ -81,8 +97,7 @@ GET {{uri}}/posts
 {
   "query": {
     "where": {
-      "is_free": true,
-      "is_book": true
+      "is_free": true
     },
     "with": ["user", "categories"]
   }

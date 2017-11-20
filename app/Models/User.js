@@ -28,6 +28,7 @@ module.exports = class User extends Model {
       wx: {
         label: '微信',
         ref: 'wx.nickname',
+        editable: false
       },
       oauths: {
         label: '第三方账号',
@@ -42,8 +43,8 @@ module.exports = class User extends Model {
 
   static async buildOptions() {
     this.options = {
-      position: await Property.options('position'),
-      trade: await Property.options('trade'),
+      position: await Property.fetchOptions('position'),
+      trade: await Property.fetchOptions('trade'),
       type: [
         {text: '从业者', value: 1},
         {text: '投资者', value: 2},

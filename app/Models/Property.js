@@ -36,7 +36,7 @@ module.exports = class Property extends Model {
     }
   }
 
-  static async options(name) {
+  static async fetchOptions(name) {
     const model = await this.findBy({ name })
     const data = model.children.map(v => {
       return {
