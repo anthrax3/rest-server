@@ -28,37 +28,42 @@ module.exports = class Transform extends Command {
   }
 
   async handle(args, options) {
-    const tables = await db.raw('show tables')
+    await db2.connect()
+    // const tables = await db.raw('show tables')
 
     // await this.syncNews()
 
 
-    // await this.syncAdmin()
-    // await this.syncCategories()
+    await this.syncAdmin()
+    await this.syncCategories()
 
-    // await this.syncUsers()
-    // await this.syncOauth()
-    // await this.syncCourses()
+    await this.syncUsers()
+    await this.syncOauth()
+    await this.syncCourses()
     await this.syncComments()
-    // await this.syncAds()
+    await this.syncAds()
 
-    // await this.syncActions()
-    // await this.syncAssoc()
-    // await this.syncOrders()
+    await this.syncVouchers()
+    await this.syncOptions()
+    await this.syncActions()
+    await this.syncAssoc()
+    await this.syncOrders()
 
-    // await this.syncDevices()
+    await this.syncDevices()
 
-    // await this.syncSms()
+    await this.syncSms()
+
+    // await this.createIndexes()
 
     db.close()
     db2.close()
     this.success('操作成功!')
   }
 
-  async list(collection, mapKey = '_id') {
-    let ret = _.keyBy(await c('courses').find(), 'id')
-    if (mapKey) {
-      ret = _.mapValues(ret, mapKey)
+  async list(collection, lhs = 'id', rhs = '_id') {
+    let ret = _.keyBy(await c(collection).find(), lhs)
+    if (rhs) {
+      ret = _.mapValues(ret, rhs)
     }
     return ret
   }
@@ -68,6 +73,201 @@ module.exports = class Transform extends Command {
       await c(collection).delete({})
     }
     await c(collection).insert(data)
+  }
+
+  async createIndexes() {
+    const c = name => db2.connection.collection(name)
+    c('categories').createIndex({ parent_id: 1 })
+    c('users').createIndex({ role_id: 1, created_at: -1 })
+    c('users').createIndex({ mobile: 1 })
+    c('courses').createIndex({ category_ids: 1, user_id: 1 })
+    c('posts').createIndex({
+      category_ids: 1, user_id: 1, course_id: 1, is_book: 1, is_free: 1, sort: 1
+    })
+    c('oauths').createIndex({ user_id: 1, type: 1 })
+    c('devices').createIndex({ os: 1, version: 1, model: 1, user_id: 1 })
+    c('sms').createIndex({ mobile: 1, msg_id: 1 })
+    c('orders').createIndex({ no: 1, user_id: 1, paid_at: 1, created_at: -1 })
+    c('order_items').createIndex({
+      order_id: 1, user_id: 1, started_at: -1, expired_at: -1, created_at: -1
+    })
+    c('pay_logs').createIndex({ order_id: 1, transaction_id: 1 })
+    c('vouchers').createIndex({ code: 1, used_at: 1, mobile: 1, user_id: 1 })
+    c('actions').createIndex({ name: 1, actionable_type: 1, actionable_id: 1, user_id: 1 })
+    c('comments').createIndex({
+      commentable_type: 1, commentable_id: 1, user_id: 1, is_top: 1
+    })
+    c('admin_users').createIndex({ role: 1 })
+
+  }
+
+  async syncOptions() {
+    const book = await c('posts').where({
+      id: 17
+    }).first()
+    const options = [
+      {
+        name: "recommend",
+        title: "内容推荐",
+        fields: JSON.stringify({
+          "home_book": {
+            "label": "首页听本书推荐", "type": "select",
+            "ajaxOptions": {
+              "resource": "posts", "text": "title", "value": "_id", "where": { "is_book": true }
+            }
+          },
+          "books_book": {
+            "label": "书籍页面-主编推荐", "type": "select",
+            "ajaxOptions": {
+              "resource": "posts", "text": "title", "value": "_id", "where": { "is_book": true }
+            }
+          },
+        }),
+        data: {
+          title: "一值财经",
+          home_book: String(book._id),
+          books_book: String(book._id)
+        }
+      },
+      {
+        name: "pagesize",
+        title: "分页设置",
+        fields: JSON.stringify({ "name": { "label": "名称" }, "title": { "label": "描述" }, "value": { "label": "分页大小(条)", "type": "number", "formatter": "Number" } }),
+        isArray: true,
+        isTable: true,
+        data: [
+          { name: "home_courses", title: "首页专栏列表", value: 5 },
+          { name: "home_posts", title: "首页一值头条", value: 2 },
+        ]
+      },
+      {
+        name: "adminMenu",
+        title: "后台菜单",
+        fields: JSON.stringify({ "name": { "label": "名称" }, "url": { "label": "URL" }, "icon": { "label": "图标" }, "title": { "label": "是否为标题", "type": "switch" } }),
+        isArray: true,
+        isTable: true,
+        data: [
+          {
+            name: '首页',
+            url: '/',
+            icon: 'icon-home',
+          },
+          {
+            title: true,
+            name: '内容管理',
+          },
+          {
+            name: '专栏',
+            url: '/rest/courses',
+            icon: 'icon-notebook',
+          },
+          {
+            name: '一条',
+            url: '/rest/posts',
+            icon: 'icon-control-play',
+          },
+          {
+            name: '书',
+            url: '/rest/posts?query={"where":{"is_book":true}}',
+            icon: 'icon-control-play',
+          },
+
+          {
+            title: true,
+            name: '运营管理',
+          },
+          {
+            name: '兑换码',
+            url: '/rest/vouchers',
+            icon: 'icon-key',
+          },
+          {
+            name: '订单',
+            url: '/rest/orders',
+            icon: 'icon-basket',
+          },
+          {
+            name: '已售',
+            url: '/rest/order_items',
+            icon: 'icon-basket',
+          },
+          {
+            name: '评论',
+            url: '/rest/comments',
+            icon: 'icon-bubble',
+          },
+          {
+            name: '用户',
+            url: '/rest/users',
+            icon: 'icon-people',
+          },
+
+          {
+            name: '第三方账号',
+            url: '/rest/oauths',
+            icon: 'icon-people',
+          },
+          {
+            name: '广告',
+            url: '/rest/ads',
+            icon: 'icon-camera',
+          },
+
+          {
+            title: true,
+            name: '系统设置',
+          },
+
+          {
+            name: '系统配置',
+            url: '/rest/options',
+            icon: 'icon-settings',
+          },
+          {
+            name: '属性管理',
+            url: '/rest/properties',
+            icon: 'icon-puzzle',
+          },
+
+          {
+            name: '分类管理',
+            url: '/rest/categories',
+            icon: 'icon-menu',
+          },
+          {
+            name: '管理员',
+            url: '/rest/admin_users',
+            icon: 'icon-people',
+          },
+          {
+            name: '注销',
+            url: '/login',
+            icon: 'icon-login',
+          },
+
+          {
+            title: true,
+            name: '底层数据',
+          },
+          {
+            name: '设备',
+            url: '/rest/devices',
+            icon: 'icon-screen-smartphone',
+          },
+          {
+            name: '短信记录',
+            url: '/rest/sms',
+            icon: 'icon-screen-smartphone',
+          },
+          {
+            name: '支付记录',
+            url: '/rest/pay_logs',
+            icon: 'icon-list',
+          }
+        ]
+      },
+    ]
+    await this.insert('options', options)
   }
 
   async syncAds() {
@@ -88,7 +288,7 @@ module.exports = class Transform extends Command {
       })
     })
     // console.log(ads);
-    
+
     await this.insert('ads', ads)
   }
 
@@ -107,7 +307,7 @@ module.exports = class Transform extends Command {
       avatar: 'http://ozegq4sdx.bkt.clouddn.com/avatar/8.jpg',
       role: 'system'
     })
-    
+
     await this.insert('admin_users', data)
   }
 
@@ -147,7 +347,7 @@ module.exports = class Transform extends Command {
       { name: '行情相关', parent_id: 3 },
       { name: '其他', parent_id: 3 },
     ]
-    
+
     await this.insert('categories', cats)
     let newCats = await c('categories').find()
 
@@ -158,7 +358,7 @@ module.exports = class Transform extends Command {
       const item = _.find(newCats, { id: v.parent_id })
       v.parent_id = ObjectID(item._id)
     })
-    
+
     await this.insert('categories', newCats)
   }
 
@@ -180,6 +380,8 @@ module.exports = class Transform extends Command {
       v.cover = profile.cover
     })
     await this.insert('users', data)
+
+
   }
 
   async syncNews() {
@@ -236,6 +438,8 @@ module.exports = class Transform extends Command {
     })
 
     await this.insert('posts', posts)
+
+
   }
 
   async syncAssoc() {
@@ -255,7 +459,7 @@ module.exports = class Transform extends Command {
     })
 
     // console.dir(arrayToTree(props))
-    
+
     await this.insert('properties', arrayToTree(props))
 
     const getColName = ns => inflection.pluralize(inflection.underscore(ns.split('\\').pop()))
@@ -276,7 +480,7 @@ module.exports = class Transform extends Command {
           const ids = _.map(v, 'property_id')
 
           const position = _.get(_.find(newProps['position'].children, { id: ids[0] }), 'title', null)
-          const trade = _.get(_.find(newProps['profession'].children, { id: ids[1] }), 'title', null)
+          const trade = _.get(_.find(newProps['trade'].children, { id: ids[1] }), 'title', null)
 
           data.push({
             id: parseInt(k),
@@ -310,7 +514,7 @@ module.exports = class Transform extends Command {
       v.user_id = ObjectID(users[v.user_id]._id)
       v.data = JSON.parse(v.data)
     })
-    
+
     await this.insert('oauths', data)
   }
 
@@ -325,6 +529,7 @@ module.exports = class Transform extends Command {
 
     })
     await this.insert('devices', devices)
+
   }
 
   async syncSms() {
@@ -371,7 +576,7 @@ module.exports = class Transform extends Command {
 
       }
     })
-    
+
     await this.insert('orders', orders)
 
     const newOrders = _.keyBy(await c('orders').find(), 'id')
@@ -385,8 +590,10 @@ module.exports = class Transform extends Command {
       }
     })
 
-    
+
     await this.insert('order_items', items)
+
+
 
     const payLogs = await t('paylogs')
     _.map(payLogs, v => {
@@ -404,7 +611,7 @@ module.exports = class Transform extends Command {
       }
 
     })
-    
+
     await this.insert('pay_logs', payLogs)
   }
 
@@ -428,16 +635,39 @@ module.exports = class Transform extends Command {
       }
       v.is_top = !!v.is_top
       v.is_checked = !!v.is_checked
-      try{
+      try {
         v.user_id = ObjectID(users[v.user_id]._id)
       } catch (e) {
-        
+
       }
-      
+
       v.commentable_id = commentable_id
     })
 
     await this.insert('comments', items)
+
+
+  }
+
+  async syncVouchers() {
+    const vouchers = await t('vouchers')
+    const ids = {
+      Course: await this.list('courses'),
+      User: await this.list('users'),
+      Post: await this.list('posts'),
+    }
+
+    vouchers.forEach((v, k) => {
+      v.object_type = v.object_type.split('\\').pop()
+      const _ids = []
+      v.object_id.split(',').forEach(id => {
+        _ids.push(ids[v.object_type][id])
+      })
+      v.object_id = _ids
+      v.user_id = ids['User'][v.user_id]
+    })
+    await this.insert('vouchers', vouchers)
+
   }
 
   async syncActions() {
@@ -446,9 +676,9 @@ module.exports = class Transform extends Command {
       'App\\Models\\User',
       'App\\Models\\Course',
     ])
-    const users = _.keyBy(await c('users').find(), 'id')
-    const courses = _.keyBy(await c('courses').find(), 'id')
-    const posts = _.keyBy(await c('posts').find(), 'id')
+    const users = await this.list('users')
+    const courses = await this.list('courses')
+    const posts = await this.list('posts')
 
 
 
@@ -461,25 +691,25 @@ module.exports = class Transform extends Command {
         actions.splice(k, 1)
         return
       }
-      v.user_id = ObjectID(users[v.user_id]._id)
+      v.user_id = ObjectID(users[v.user_id])
 
       let actionable_id = null
       switch (v.actionable_type) {
         case 'Course':
-          actionable_id = ObjectID(courses[v.actionable_id]._id)
+          actionable_id = ObjectID(courses[v.actionable_id])
           break;
         case 'Post':
-          actionable_id = ObjectID(posts[v.actionable_id]._id)
+          actionable_id = ObjectID(posts[v.actionable_id])
           break;
         case 'User':
-          actionable_id = ObjectID(users[v.actionable_id]._id)
+          actionable_id = ObjectID(users[v.actionable_id])
           break;
       }
       v.actionable_id = actionable_id
     })
-    // console.log(actions[0]);
-    
+
     await this.insert('actions', actions)
+
   }
 
 

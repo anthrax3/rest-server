@@ -6,8 +6,7 @@ const { HttpException } = require('@adonisjs/generic-exceptions')
 
 class Resource {
   async handle(ctx, next) {
-    const { request, auth, params } = ctx
-    // call next to advance the request
+    const { request, auth, params, query } = ctx
 
     const resource = params.resource
     if (resource) {
@@ -18,22 +17,9 @@ class Resource {
       }
       const Model = use('App/Models/' + className)
 
-      let query = request.input('query', {})
-      if (typeof query === 'string') {
-        query = JSON.parse(query)
-      }
-
       if (params.id) {
-        let where = {
-          _id: params.id
-        }
-        if (params.id.length != 24) {
-          where = {
-            or: [{ name: params.id }, { key: params.id }]
-          }
-        }
 
-        const ret = await Model.query(query).where(where).limit(1).fetch()
+        const ret = await Model.query(query).limit(1).fetch()
         if (ret.rows.length < 1) {
           throw new HttpException('模型不存在', 404)
         }
@@ -51,30 +37,6 @@ class Resource {
         return {}
       }
 
-      _.mapValues(query.where, (v, k) => {
-        if (v === '' || v === null || _.isEqual(v, []) || _.isEqual(v, [null])) {
-          return delete query.where[k]
-        }
-        const isDate = ['created_at', 'updated_at'].includes(k)
-        if (isDate) {
-          // v = _.map(v, d => d.replace(/(\d{4}-\d{2}-\d{2})/, '$1'))
-          let [begin, end] = v
-          if (!end) {
-            end = begin + 1
-          }
-          query.where[k] = { gte: begin, lte: end }
-          return
-        }
-        if (_.isString(v) && v.includes('regexp:')) {
-
-          query.where[k] = new RegExp(v.replace('regexp:', ''), 'i')
-        }
-        if (_.isArray(v)) {
-          query.where[k] = { in: v }
-        }
-      })
-      // console.log(query.where);
-      ctx.query = query
       ctx.resource = resource
       ctx.Model = Model
 

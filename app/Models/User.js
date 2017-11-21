@@ -85,6 +85,10 @@ module.exports = class User extends Model {
     return this.hasMany('App/Models/Order', '_id', 'user_id')
   }
 
+  orderItems() {
+    return this.hasMany('App/Models/OrderItem', '_id', 'user_id')
+  }
+
   async buy(data, itemsData) {
     data.no = [
       'A',

@@ -1,6 +1,7 @@
 'use strict'
 
 const Model = require('./Model')
+const _ = require('lodash')
 
 module.exports = class Option extends Model {
 
@@ -16,11 +17,20 @@ module.exports = class Option extends Model {
     }
   }
 
-  static async get(name) {
+  static async get(name, lhs, rhs) {
     const model = await Option.findBy({ name })
     if (!model) {
       return null
     }
-    return model.data
+    let data = model.data
+    if (_.isArray(data)) {
+      if (lhs) {
+        data = _.keyBy(data, lhs)
+      }
+      if (rhs) {
+        data = _.mapValues(data, rhs)
+      }
+    }
+    return data
   }
 }

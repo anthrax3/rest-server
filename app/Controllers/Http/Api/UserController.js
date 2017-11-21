@@ -55,4 +55,14 @@ module.exports = class AuthController {
       count: await Action.where(data).count()
     }
   }
+
+  async orders({ request, query }) {
+    const OrderItem = use('App/Models/OrderItem')
+    const data = await OrderItem.query(query).limit(2).fetch()
+    
+    for (let row of data.rows) {
+      row.buyable = await row.buyable().first()
+    }
+    return data
+  }
 }

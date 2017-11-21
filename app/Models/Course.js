@@ -1,5 +1,7 @@
 'use strict'
 
+const _ = require('lodash')
+
 const Model = require('./Model')
 const User = require('./User')
 const Post = require('./Post')
@@ -33,11 +35,11 @@ module.exports = class Course extends Model {
         sortable: true,
       },
       price: { label: '价格', cols: 4, formatter: 'Number', type: 'number' },
-      
+
       category_ids: {
         label: '所属分类', type: 'select',
         ref: 'categories.name',
-        multiple: true, 
+        multiple: true,
         cols: 12,
         // size: 10,
         selectSize: 5,
@@ -77,12 +79,17 @@ module.exports = class Course extends Model {
     }
   }
 
-  static get listFields() {
-    return '_id title tag subhead user_id category_ids description pv image cover price description created_at'.split(' ')
-  }
+  static boot() {
+    super.boot()
 
-  static scopeListFields(query) {
-    query.select(this.listFields)
+    // this.addHook('afterFetch', async (models) => {
+    //   const Server = use('Server')
+    //   console.log(Server.Context.auth);
+    //   for (let model of models) {
+    //     model.is_buy = true
+    //     model.collection_count = 10
+    //   }
+    // })
   }
 
   getCover(val) {
@@ -90,6 +97,23 @@ module.exports = class Course extends Model {
   }
   getImage(val) {
     return this.uploadUri(val)
+  }
+
+  async appendIsBuy({ auth }) {
+    const user = auth.user
+    if (this.is_free) {
+      return true
+    }
+    if (!user) {
+      return false
+    }
+    const exist = await user.orderItems().where({
+      buyable_type: this.constructor.name,
+      buyable_id: this._id,
+      started_at: { ne: null }
+    }).count()
+    
+    return !!exist
   }
 
   user() {

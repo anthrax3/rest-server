@@ -34,7 +34,7 @@ module.exports = class Post extends Model {
       is_book: { label: '是否为书', type: 'switch', cols: 3 },
       is_free: { label: '是否免费', type: 'switch', cols: 3, },
       duration: { label: '时长(秒)', type: 'number', cols: 3, formatter: 'Number' },
-      
+
 
       category_ids: {
         label: '所属分类', type: 'select',
@@ -63,7 +63,7 @@ module.exports = class Post extends Model {
     this.options = {
       course_id: await Course.fetchOptions('_id', 'title'),
       category_ids: await Category.treeOptions('_id', 'name', '书籍分类'),
-      user_id: await User.fetchOptions('_id', 'username', { role_id: 1 }),      
+      user_id: await User.fetchOptions('_id', 'username', { role_id: 1 }),
     }
   }
 
@@ -77,10 +77,6 @@ module.exports = class Post extends Model {
 
   getVoice(val) {
     return this.uploadUri(val)
-  }
-
-  static get listFields() {
-    return '_id course_id user_id category_ids title is_free is_book period duration cover sort pv image voice description created_at updated_at'.split(' ')
   }
 
   course() {

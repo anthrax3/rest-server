@@ -33,6 +33,7 @@ async function main() {
   // console.log((await user.actions().where('name', 'collection').with('actionable', builder => {
   //   builder.select(['_id', 'title'])
   // }).fetch()).toJSON());
+  // console.log(await use('App/Models/Post').query().withCount('comments').first());
 
   // const Drive = use('Drive')
   // console.log((await Course.query().listFields().limit(1).fetch()).toJSON());
@@ -40,8 +41,8 @@ async function main() {
   // console.log(await use('App/Models/Category').treeOptions('_id', 'name', '专栏分类'));
   // console.log(await Drive.put('node/2.jpg', __dirname + '/../public/uploads/2.jpg'))
 
-  console.log(await use('App/Models/Post').find('5a0d3bbc98f5761c04a239b1'));
-  console.log((await use('App/Models/Comment').query().with('commentable').limit(2).fetch()).toJSON());
+  // console.log((await use('App/Models/Comment').query().with('commentable').limit(2).fetch()).toJSON());
+  use('App/Models/Course').listFields
 }
 // main()
 

@@ -1,7 +1,7 @@
 @uri = http://localhost:5555/api
 @json = Content-Type: application/json
 @ajson = Accept: application/json
-@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTA5NDVkMzJhYWEyYzRjYzg4ODNkYWEiLCJpYXQiOjE1MTA5MDI1MDJ9.Jh0xqqD-_U_pqq8bC86efU1drykSv1yw8PPB2RJKJ8Q
+@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTEzZGZlZjg4YjA5MWEwM2NmNWE4NWQiLCJpYXQiOjE1MTEyNTQwMDd9.N2hjPptK7xYqtnxaZhZ2ppr0gW1TMxxmUAgIcrO4vOE
 
 ###
 POST {{uri}}/iap
@@ -40,20 +40,37 @@ GET {{uri}}/categories/course
 }
 
 
+###
+GET {{uri}}/mine/orders
+{{json}}
+{{ajson}}
+{{auth}}
+
+{
+  "query": {
+    "where": {
+      "buyable_type": "Course"
+    },
+    "page": 1,
+    "perPage": 3
+  }
+}
 
 ###
 GET {{uri}}/courses
 {{json}}
 {{ajson}}
+{{auth}}
 
 {
   "query": {
-    "with": [],
+    "appends": ["is_buy"],
     "page": 1,
-    "perPage": 3
+    "perPage": 1
   }
 }
-###
+
+##
 GET {{uri}}/courses/5a12a5d86bd4a488703307a6
 {{json}}
 
@@ -74,7 +91,7 @@ GET {{uri}}/posts/5a12a5d86bd4a488703307d1
 }
 
 ###
-GET {{uri}}/posts/weekly_book
+GET {{uri}}/posts/recommends/home_book
 ###
 GET {{uri}}/posts
 {{json}}
@@ -102,3 +119,6 @@ GET {{uri}}/posts
     "with": ["user", "categories"]
   }
 }
+
+###
+GET {{uri}}/options/pagesize

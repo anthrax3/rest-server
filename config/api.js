@@ -8,5 +8,33 @@ module.exports = {
   upload: {
     types: ['image', 'audio', 'video'],
     size: '100mb'
+  },
+  resources: {
+    order_items: {
+      auth: true,
+      query: {
+        index: {
+          // with: ['buyable']
+        }
+      }
+    },
+    orders: {
+      auth: true
+    },
+    actions: {
+      auth: true
+    },
+    courses: {
+      query: {
+        index: {
+          with: ['user'],
+          appends: ['is_buy'],
+        },
+        show: {
+          with: ['user', 'posts', 'comments'],
+          appends: ['is_buy'],
+        }
+      }
+    }
   }
 }

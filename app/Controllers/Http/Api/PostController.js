@@ -11,12 +11,12 @@ const { HttpException } = require('@adonisjs/generic-exceptions')
 const BaseController = require('./ResourceController')
 
 module.exports = class PostController extends BaseController {
-
-  async weeklyBook(){
+  
+  async recommends({ params }) {
     const recommend = await Option.get('recommend')
     return await Post.query().listFields().where({
-      _id: recommend.book
+      _id: recommend[params.name]
     }).first()
   }
-  
+
 }

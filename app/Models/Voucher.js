@@ -24,4 +24,8 @@ module.exports = class Voucher extends Model {
     }
   }
 
+  object () {
+    return this.morphTo('App/Models', 'object_type', '_id', 'object_id')
+  }
+
 }

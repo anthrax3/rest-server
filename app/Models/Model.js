@@ -46,7 +46,7 @@ module.exports = class Model extends BaseModel {
   }
 
   static getOptions(key) {
-    return this.options[key]
+    return _.get(this.options, key, [])
   }
 
   static async treeOptions(lhs = '_id', rhs = 'name', topName = null, parentField = 'parent_id', parentValue = null) {
@@ -114,6 +114,12 @@ module.exports = class Model extends BaseModel {
 
   static scopeListFields(query){
     query.select(this.listFields || [])
+  }
+
+  static get listFields() {
+    let fields = _.pickBy(this.fields, v => ['html'].includes(v.type))
+    fields = _.map(_.keys(fields), v => '-' + v)
+    return fields
   }
 
   user() {
