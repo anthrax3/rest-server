@@ -136,7 +136,7 @@ module.exports = class Transform extends Command {
         isArray: true,
         isTable: true,
         data: [
-          { name: "home_courses", title: "首页专栏列表", value: 5 },
+          { name: "home_courses", title: "首页专栏列表", value: 3 },
           { name: "home_posts", title: "首页一值头条", value: 2 },
         ]
       },

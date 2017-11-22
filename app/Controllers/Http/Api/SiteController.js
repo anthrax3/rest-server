@@ -48,4 +48,6 @@ module.exports = class SiteController {
     const { mobile, captcha, isLogin } = request.all()
     let ret = await use('Sms').sendCode()
   }
+
+  
 }

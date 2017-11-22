@@ -23,6 +23,7 @@ const providers = [
 
   __dirname + '/../app/Providers/Drive/DriveProvider',
   __dirname + '/../app/Providers/Sms/SmsProvider',
+  __dirname + '/../app/Providers/Validator/ValidatorProvider',
 
 
   

@@ -5,7 +5,7 @@ const User = use('App/Models/User')
 
 module.exports = class Comment extends Model {
   static get objectIDs() {
-    return ['_id', 'commentable_id', 'user_id']
+    return ['_id', 'commentable_id', 'user_id', 'comment_id']
   }
   static get label() {
     return '评论'
@@ -34,12 +34,13 @@ module.exports = class Comment extends Model {
         sortable: true,
       },
       is_top: { label: '是否置顶', type: 'switch' },
+      is_checked: { label: '是否审核', type: 'switch' },
       content: { label: '评论内容' },
       created_at: { label: '发布时间' },
 
       actions: {
         buttons: {
-          edit: false,
+          // edit: false,
           remove: false
         }
       }

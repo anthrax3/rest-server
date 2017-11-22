@@ -17,8 +17,16 @@ module.exports = class Model extends BaseModel {
   //   // return ['_bootIfNotBooted', 'buildOptions']
   // }
 
+  static get computed() {
+    return ['id']
+  }
+
   static get objectIDs() {
     return ['_id']
+  }
+
+  getId(){
+    return this._id
   }
 
   static async fetchOptions(lhs, rhs, where = {}) {
@@ -124,5 +132,14 @@ module.exports = class Model extends BaseModel {
 
   user() {
     return this.belongsTo('App/Models/User', 'user_id', '_id')
+  }
+
+  async fetchAppends(ctx, appends) {
+    for (let key of appends) {
+      const getter = 'append' + inflection.classify(key)
+      if (this[getter]) {
+        this[key] = await this[getter](ctx)
+      }
+    }
   }
 }

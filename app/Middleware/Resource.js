@@ -23,7 +23,13 @@ class Resource {
         if (ret.rows.length < 1) {
           throw new HttpException('模型不存在', 404)
         }
-        ctx.model = ret.rows[0]
+        const model = ret.rows[0]
+        
+        if (query.appends) {
+          await model.fetchAppends(ctx, query.appends)
+        }
+        ctx.model = model
+        
         //因.firstOrFail()方法不支持morphTo关联，故用fetch和row[0]代替
       } else {
         ctx.model = new Model

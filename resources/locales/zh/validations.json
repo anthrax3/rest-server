@@ -1,3 +1,4 @@
 {
-  "required": "请填写{{field}}"
+  "required": "请填写{{field}}",
+  "mobile": "请输入正确的{{field}}"
 }

@@ -13,63 +13,42 @@ module.exports = class ResourceController {
     const { params, auth } = ctx
     if (query.appends) {
       for (let row of data.rows) {
-        for (let key of query.appends) {
-          const getter = 'append' + inflection.classify(key)
-          if (row[getter]) {
-            row[key] = await row[getter](ctx)
-          }
-        }
+        await row.fetchAppends(ctx, query.appends)
       }
     }
     return data
   }
 
   async processQuery({ params, model, auth }, query) {
-    const resource = params.resource
-    const apiConfig =  Config.get('api')
-    const resourceConfig = _.get(apiConfig, `resources.${resource}`, {})
-    
-    if (resourceConfig.auth) {
-      if (!auth.user) {
-        throw new HttpException('请先登录', 401)
-      }
-      if (!query.where) {
-        query.where = {}
-      }
-      query.where.user_id = auth.user._id
-    }
-    switch (resource) {
+    switch (params.resource) {
       case 'courses':
         query = await this.buildCoursesQuery(query)
         break;
     }
-
-    
-    if (model._id) {
-      //show
-      const defaultQuery = _.get(resourceConfig, `query.show`, {})
-      query = _.defaultsDeep({}, defaultQuery, query)
-    } else {
-      //index
-      const defaultQuery = _.get(resourceConfig, `query.index`, {})
-      query = _.defaultsDeep({}, defaultQuery, query)
-    }
-    
-    
     return query
   }
 
   async index(ctx) {
     let { request, Model, query, params, auth } = ctx
-    
+
     const { page = 1, perPage = 20 } = query
     const offset = (page - 1) * perPage
     const limit = perPage
     query = await this.processQuery(ctx, query)
-    
+
     let data = await Model.query(query).listFields().skip(offset).limit(limit).fetch()
+
     data = await this.processData(ctx, query, data)
-    return data
+    const total = await Model.where(query.where).count()
+    const lastPage = Math.ceil(total / perPage)
+    return {
+      lastPage,
+      total,
+      page,
+      perPage,
+      data,
+
+    }
   }
 
   async show({ request, auth, Model, model }) {
@@ -86,8 +65,49 @@ module.exports = class ResourceController {
       ids.push(parent._id)
       delete query.where.category
       query.where.category_ids = { in: ids }
+      
     }
+    
     return query
+  }
+
+  async collect(ctx) {
+    const Action = use('App/Models/Action')
+    const { request, auth, Model, model } = ctx
+    const action = await model.collections().where({
+      user_id: auth.user._id
+    }).first()
+    if (!action) {
+      await model.actions().create({
+        name: 'collection',
+        user_id: auth.user._id
+      })
+    } else {
+      await action.delete()
+    }
+    const count = await model.collections().count()
+    return {
+      status: !action,
+      count: count
+    }
+  }
+
+  async comments({ request, Model, model, query }) {
+    return await model.comments().where({
+      is_checked: true
+    }).orderBy({
+      is_top: -1,
+      _id: -1,
+    }).paginate(query.page, query.perPage || 10)
+  }
+
+  async comment({ request, auth, Model, model, query }) {
+    const data = request.only(['content', 'comment_id'])
+    await validate(data, {
+      content: 'required'
+    })
+    data.user_id = auth.user._id
+    return await model.comments().create(data)
   }
 
 }

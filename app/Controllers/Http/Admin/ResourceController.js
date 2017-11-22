@@ -8,14 +8,27 @@ const { HttpException } = require('@adonisjs/generic-exceptions')
 
 module.exports = class ResourceController {
 
-  async index({ request, Model, query }) {
+  async processData(ctx, query, data) {
+    const { params, auth } = ctx
+    if (query.appends) {
+      for (let row of data.rows) {
+        await row.fetchAppends(ctx, query.appends)
+      }
+    }
+    return data
+  }
+
+  async index(ctx) {
+    const { request, Model, query } = ctx
     const fields = _.omitBy(Model.fields, (v, k) => v.listable === false)
     const { page, perPage = 20 } = query
     const offset = (page - 1) * perPage
     const limit = perPage
-    const data = await Model.query(query).select(Object.keys(fields)).skip(offset).limit(limit).fetch()
+    let data = await Model.query(query).select(Object.keys(fields)).skip(offset).limit(limit).fetch()
     const total = await Model.query(query).count()
     const lastPage = Math.ceil(total / perPage)
+    data = await this.processData(ctx, query, data)
+
     return {
       page,
       perPage,

@@ -7,7 +7,8 @@ Route.group(() => {
   
 
 }).prefix('admin/api').middleware([
-  'authenticator:adminJwt'
+  'authenticator:adminJwt',
+  'query:admin',
 ])
 
 //需要登录
@@ -26,6 +27,7 @@ Route.group(() => {
 }).prefix('admin/api').middleware([
   'authenticator:adminJwt',
   'auth:adminJwt',
+  'query:admin',
   'resource'
 ])
 

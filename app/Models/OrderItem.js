@@ -45,6 +45,13 @@ module.exports = class OrderItem extends Model {
     ])
   }
 
+  morph() {
+    const query = this.buyable()
+    const determiner = query.parentInstance[query.determiner]
+    const relatedModel = use(`${query.modelPath}/${determiner}`)
+    return relatedModel.where(query.primaryKey, query.parentInstance[query.foreignKey])
+  }
+
   buyable () {
     return this.morphTo('App/Models', 'buyable_type', '_id', 'buyable_id')
   }

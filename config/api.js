@@ -14,7 +14,11 @@ module.exports = {
       auth: true,
       query: {
         index: {
-          // with: ['buyable']
+          append: ['is_buy'],
+          with: ['buyable']
+        },
+        show: {
+
         }
       }
     },
@@ -24,15 +28,27 @@ module.exports = {
     actions: {
       auth: true
     },
+    posts: {
+      query: {
+        index: {
+          with: ['user', 'course'],
+          appends: ['is_buy', 'is_collected', 'collection_count'],
+        },
+        show: {
+          with: ['user', 'course'],
+          appends: ['is_buy', 'is_collected', 'collection_count'],
+        }
+      }
+    },
     courses: {
       query: {
         index: {
           with: ['user'],
-          appends: ['is_buy'],
+          appends: ['is_buy', 'is_collected', 'collection_count'],
         },
         show: {
           with: ['user', 'posts', 'comments'],
-          appends: ['is_buy'],
+          appends: ['is_buy', 'is_collected', 'collection_count'],
         }
       }
     }

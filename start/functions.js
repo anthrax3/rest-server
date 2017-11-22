@@ -14,7 +14,8 @@ global.validate = async function (data, rules, messages, labels) {
   const validation = await Validator.validate(data, rules, messages)
   if (validation.fails()) {
     let errorMessages = _.each(validation.messages(), v => {
-      v.message = v.message.replace(v.field, labels[v.field])
+      v.message = String(v.message).replace(v.field, labels[v.field])
+      console.log(v);
       return v
     })
     throw new HttpException(errorMessages, 422)

@@ -18,12 +18,12 @@ module.exports = class User extends Model {
       _id: { sortable: true },
       mobile: { label: '手机号', cols: 4, searchable: true },
       username: { label: '用户名', cols: 4, searchable: true },
-      password: { label: '密码', cols: 4, type: 'password', autocomplete: 'new-password',listable: false },
+      password: { label: '密码', cols: 4, type: 'password', autocomplete: 'new-password', listable: false },
       realname: { label: '真实姓名', cols: 4, searchable: true },
-      points: { label: '积分', cols: 4, sortable: true , editable: false},
-      type: { label: '身份', cols: 4, type: 'radiolist', options: this.getOptions('type'), searchable: true},
-      position: { label: '职位', cols: 4, type: 'select', options: this.getOptions('position'), searchable: true},
-      trade: { label: '行业', cols: 4, type: 'select', options: this.getOptions('trade'), searchable: true},
+      points: { label: '积分', cols: 4, sortable: true, editable: false },
+      type: { label: '身份', cols: 4, type: 'radiolist', options: this.getOptions('type'), searchable: true },
+      position: { label: '职位', cols: 4, type: 'select', options: this.getOptions('position'), searchable: true },
+      trade: { label: '行业', cols: 4, type: 'select', options: this.getOptions('trade'), searchable: true },
       created_at: { label: '注册时间', sortable: true, searchable: true },
       wx: {
         label: '微信',
@@ -46,8 +46,8 @@ module.exports = class User extends Model {
       position: await Property.fetchOptions('position'),
       trade: await Property.fetchOptions('trade'),
       type: [
-        {text: '从业者', value: 1},
-        {text: '投资者', value: 2},
+        { text: '从业者', value: 1 },
+        { text: '投资者', value: 2 },
       ]
     }
   }
@@ -70,10 +70,10 @@ module.exports = class User extends Model {
     return this.hasMany('App/Models/Oauth', '_id', 'user_id')
   }
 
-  wx(){
+  wx() {
     return this.hasOne('App/Models/Oauth', '_id', 'user_id').where('type', 'wx')
   }
-  qq(){
+  qq() {
     return this.hasOne('App/Models/Oauth', '_id', 'user_id').where('type', 'qq')
   }
 
@@ -95,7 +95,7 @@ module.exports = class User extends Model {
       (new Date).valueOf(),
       parseInt(Math.random() * 9999)
     ].join('')
-    
+
     let total = 0
 
     _.map(itemsData, item => {
@@ -106,7 +106,7 @@ module.exports = class User extends Model {
 
       total += item.price * item.qty
     })
-    
+
     if (!data.total) {
       data.total = total
     }
@@ -114,14 +114,29 @@ module.exports = class User extends Model {
     if (!data.title) {
       data.title = itemsData[0].title
     }
-    
+
     data.paid_at = null
 
     const order = await this.orders().create(data)
-    
+
     const items = await order.items().createMany(itemsData)
     Event.emit('user::buy')
     return order
+  }
+
+  static async register(data) {
+    data = _.defaults({}, {
+      role_id: 2, //普通用户
+      avatar: 'http://ww1.sinaimg.cn/large/6aedb651gy1fg019galomj207s07sdg5.jpg',
+      
+    }, data)
+    if (!data.username && data.mobile) {
+      data.username = 'User' + String(data.mobile).substr(5)
+    }
+    const user = new User()
+    user.fill(data)
+    await user.save()
+    return user
   }
 
 }

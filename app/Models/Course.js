@@ -9,6 +9,9 @@ const Category = require('./Category')
 
 module.exports = class Course extends Model {
 
+  static get computed() {
+    return super.computed.concat(['name'])
+  }
   static get objectIDs() {
     return ['_id', 'user_id']
   }
@@ -27,7 +30,7 @@ module.exports = class Course extends Model {
 
   static get fields() {
     return {
-      _id: { sortable: true },
+      _id: { sortable: true, searchable: true },
       title: { label: '标题', cols: 4, block: true },
       user_id: {
         label: '所属专家', type: 'select2', ref: "user.username", cols: 4,
@@ -92,11 +95,35 @@ module.exports = class Course extends Model {
     // })
   }
 
+  getName() {
+    return this.title
+  }
+
   getCover(val) {
     return this.uploadUri(val)
   }
   getImage(val) {
     return this.uploadUri(val)
+  }
+
+  async appendCollectionCount() {
+    const count = await this.actions().where({
+      name: 'collection'
+    }).count()
+    return count || 0
+  }
+
+  async appendIsCollected({ auth }) {
+    const user = auth.user
+    if (!user) {
+      return false
+    }
+    const exist = await user.actions().where({
+      actionable_type: this.constructor.name,
+      actionable_id: this._id
+    }).count()
+
+    return !!exist
   }
 
   async appendIsBuy({ auth }) {
@@ -112,7 +139,7 @@ module.exports = class Course extends Model {
       buyable_id: this._id,
       started_at: { ne: null }
     }).count()
-    
+
     return !!exist
   }
 
@@ -128,7 +155,21 @@ module.exports = class Course extends Model {
     return this.hasMany('App/Models/Post', '_id', 'course_id').select(Post.listFields)
   }
 
+  actions() {
+    return this.morphMany('App/Models/Action', 'actionable_type', 'actionable_id')
+  }
+
+  collections() {
+    return this.morphMany('App/Models/Action', 'actionable_type', 'actionable_id').where({
+      name: 'collection'
+    })
+  }
+
   comments() {
+    return this.morphMany('App/Models/Comment', 'commentable_type', 'commentable_id')
+  }
+
+  topComments() {
     return this.manyThrough('App/Models/Post', 'comments', '_id', 'course_id').where({
       is_top: true
     })

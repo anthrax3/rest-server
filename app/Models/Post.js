@@ -79,6 +79,43 @@ module.exports = class Post extends Model {
     return this.uploadUri(val)
   }
 
+  async appendCollectionCount() {
+    const count = await this.actions().where({
+      name: 'collection'
+    }).count()
+    return count || 0
+  }
+
+  async appendIsBuy({ auth }) {
+    const user = auth.user
+    if (this.is_free) {
+      return true
+    }
+    if (!user) {
+      return false
+    }
+    const exist = await user.orderItems().where({
+      buyable_type: this.constructor.name,
+      buyable_id: this._id,
+      started_at: { ne: null }
+    }).count()
+    
+    return !!exist
+  }
+
+  async appendIsCollected({ auth }) {
+    const user = auth.user
+    if (!user) {
+      return false
+    }
+    const exist = await user.actions().where({
+      actionable_type: this.constructor.name,
+      actionable_id: this._id
+    }).count()
+    
+    return !!exist
+  }
+
   course() {
     return this.belongsTo('App/Models/Course', 'course_id', '_id').listFields()
   }
@@ -97,6 +134,10 @@ module.exports = class Post extends Model {
 
   comments() {
     return this.morphMany('App/Models/Comment', 'commentable_type', 'commentable_id').with('user').orderBy('-_id')
+  }
+
+  actions() {
+    return this.morphMany('App/Models/Action', 'actionable_type', 'actionable_id')
   }
 
 }

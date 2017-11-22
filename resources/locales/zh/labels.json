@@ -1,4 +1,8 @@
 {
   "username": "用户名",
-  "password": "密码"
+  "password": "密码",
+  "code": "验证码",
+  "captcha": "验证码",
+  "content": "内容",
+  "mobile": "手机号"
 }

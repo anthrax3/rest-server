@@ -8,6 +8,7 @@ class Authenticator {
     try {
       await auth.check()
     } catch (e) {
+      console.log(this.constructor.name, e.name);
     }
     await next()
   }

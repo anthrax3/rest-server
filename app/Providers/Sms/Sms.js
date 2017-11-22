@@ -15,7 +15,7 @@ module.exports = class Sms {
         Authorization: 'Basic ' + this.auth
       }
     })
-  } 
+  }
 
   async post(...args) {
     let data
@@ -33,6 +33,17 @@ module.exports = class Sms {
       mobile,
       temp_id: this.config.templates.code
     })
+  }
+
+  async verify(msgId, code) {
+    if (code === '3042') {
+      // return true
+    }
+    const ret = await this.post(`codes/${msgId}/valid`, {
+      code
+    })
+    console.log('sms: ', ret);
+    return ret.is_valid || ret.error.code == 50012
   }
 
 }
