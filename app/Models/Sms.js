@@ -11,7 +11,7 @@ module.exports = class Sms extends Model {
       _id: { sortable: true },
       mobile: { label: '手机号' },
       msg_id: { label: '短信ID' },
-      data: { label: '响应数据' },
+      data: { label: '响应数据',listable: false },
       created_at: { label: '发送时间' },
       actions: {
         buttons: {

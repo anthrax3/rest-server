@@ -19,16 +19,27 @@ Route.group(() => {
   'query:api',
 ])
 
-//需要登录
+//需要登录的mine路由
 Route.group(() => {
   Route.get('orders', 'Api/UserController.orders')
-  Route.post('iap', 'Api/PaymentController.verifyIap')
 
 }).prefix('api/mine').middleware([
-  'authenticator:jwt',
+  // 'authenticator:jwt',
   'auth:jwt',
   'query:api'
 ])
+
+//需要登录
+Route.group(() => {
+  Route.post('orders/create', 'Api/OrderController.create')
+  Route.post('iap', 'Api/PaymentController.verifyIap')
+
+}).prefix('api').middleware([
+  // 'authenticator:jwt',
+  'auth:jwt',
+  'query:api'
+])
+
 
 //允许游客访问的资源路由
 Route.group(() => {
@@ -54,7 +65,7 @@ Route.group(() => {
   
 
 }).prefix('api').middleware([
-  'authenticator:jwt',
+  // 'authenticator:jwt',
   'auth:jwt',
   'query:api',
   'resource',

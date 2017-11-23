@@ -33,8 +33,8 @@ module.exports = class Comment extends Model {
         label: '用户', type: 'select2', ref: "user.username", cols: 4,
         sortable: true,
       },
-      is_top: { label: '是否置顶', type: 'switch' },
-      is_checked: { label: '是否审核', type: 'switch' },
+      is_top: { label: '是否置顶', type: 'switch', searchable: true },
+      is_checked: { label: '是否审核', type: 'switch', searchable: true },
       content: { label: '评论内容' },
       created_at: { label: '发布时间' },
 

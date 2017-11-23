@@ -20,7 +20,8 @@ module.exports = class User extends Model {
       username: { label: '用户名', cols: 4, searchable: true },
       password: { label: '密码', cols: 4, type: 'password', autocomplete: 'new-password', listable: false },
       realname: { label: '真实姓名', cols: 4, searchable: true },
-      points: { label: '积分', cols: 4, sortable: true, editable: false },
+      // points: { label: '积分', cols: 4, sortable: true, editable: false },
+      balance: { label: '值币', cols: 4, sortable: true, editable: true },
       type: { label: '身份', cols: 4, type: 'radiolist', options: this.getOptions('type'), searchable: true },
       position: { label: '职位', cols: 4, type: 'select', options: this.getOptions('position'), searchable: true },
       trade: { label: '行业', cols: 4, type: 'select', options: this.getOptions('trade'), searchable: true },
@@ -89,7 +90,13 @@ module.exports = class User extends Model {
     return this.hasMany('App/Models/OrderItem', '_id', 'user_id')
   }
 
+  getBalance(val){
+    return Number(val) || 0
+  }
+
   async buy(data, itemsData) {
+    const { payment_type } = data
+    
     data.no = [
       'A',
       (new Date).valueOf(),
@@ -98,14 +105,18 @@ module.exports = class User extends Model {
 
     let total = 0
 
-    _.map(itemsData, item => {
-      item.title = item.buyable.title
-      item.price = item.buyable.price
+    for (let item of itemsData) {
+      const buyable = await use('App/Models/' + item.buyable_type).find(item.buyable_id)
+      item.title = buyable.title
+      item.price = buyable.price
+      if (buyable.buyData) {
+        item.data = buyable.buyData
+      }
       item.qty = parseInt(item.qty) || 1
       item.paid_at = null
-
+      item.user_id = this._id
       total += item.price * item.qty
-    })
+    }
 
     if (!data.total) {
       data.total = total
@@ -117,18 +128,38 @@ module.exports = class User extends Model {
 
     data.paid_at = null
 
+    if (data.payment_type == 'WALLET') {
+      if (this.getBalance(this.balance) < data.total) {
+        throw new Error('余额不足,请充值')
+      }
+    }
+
+    // const exist = await this.orders().where({
+    //   paid_at: null
+    // }).count()
+    // throw new Error('您有未完成的订单,暂时无法下单')
+
     const order = await this.orders().create(data)
 
     const items = await order.items().createMany(itemsData)
-    Event.emit('user::buy')
+    use('Event').emit('user::buy', order)
     return order
+  }
+
+  async payViaBalance(order) {
+    await this.addBalance('buy', -order.total, {
+      order_id: order._id,
+      title: order.title
+    })
+    await order.paid()
+    return true
   }
 
   static async register(data) {
     data = _.defaults({}, {
       role_id: 2, //普通用户
       avatar: 'http://ww1.sinaimg.cn/large/6aedb651gy1fg019galomj207s07sdg5.jpg',
-      
+
     }, data)
     if (!data.username && data.mobile) {
       data.username = 'User' + String(data.mobile).substr(5)
@@ -137,6 +168,18 @@ module.exports = class User extends Model {
     user.fill(data)
     await user.save()
     return user
+  }
+
+  walletLogs() {
+    return this.hasMany('App/models/WalletLog', '_id', 'user_id')
+  }
+
+  async addBalance(type, amount, data = null) {
+    const log = await this.walletLogs().create({
+      type, amount
+    })
+    use('Event').emit('user::addBalance', log)
+    return this.balance
   }
 
 }

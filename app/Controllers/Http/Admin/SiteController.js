@@ -8,6 +8,45 @@ const { HttpException } = require('@adonisjs/generic-exceptions')
 
 module.exports = class SiteController {
 
+  async home({ }) {
+    const Comment = use('App/Models/Comment')
+    const User = use('App/Models/User')
+    const Order = use('App/Models/Order')
+    const Post = use('App/Models/Post')
+    const statics = [
+      {
+        bg: 'info',
+        icon: 'icon-speedometer',
+        value: await Comment.count(),
+        title: '评论数量',
+        progress: 78
+      },
+      {
+        bg: 'success',
+        icon: 'icon-people',
+        value: await User.count(),
+        title: '用户数',
+        progress: 60
+      },
+      {
+        bg: 'warning',
+        icon: 'icon-basket-loaded',
+        value: await Order.sum('total'),
+        title: '销售额',
+        progress: 92
+      },
+      {
+        bg: 'primary',
+        icon: 'icon-speech',
+        value: await Post.count(),
+        title: '语音数量',
+        progress: 67
+      },
+    ]
+    return {
+      statics
+    }
+  }
 
   async login({ request, auth }) {
     const AdminUser = use('App/Models/AdminUser')
@@ -20,7 +59,7 @@ module.exports = class SiteController {
     const user = await AdminUser.findBy('username', username)
     if (!user) {
       throw new HttpException([
-        {field: 'username', message: '用户不存在'}
+        { field: 'username', message: '用户不存在' }
       ], 422)
     }
     let token
@@ -31,14 +70,14 @@ module.exports = class SiteController {
       //   {field: 'password', message: '密码错误'}
       // ], 422)
       token = await auth.generate(user) //for test
-      
+
     }
     token.user = user
     return token
   }
 
   async upload({ request, response, auth }) {
-    
+
     const type = request.input('type')
     const file = request.file('file', {
       types: ['image', 'audio', 'video'],

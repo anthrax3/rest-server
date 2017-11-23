@@ -42,7 +42,25 @@ async function main() {
   // console.log(await Drive.put('node/2.jpg', __dirname + '/../public/uploads/2.jpg'))
 
   // console.log((await use('App/Models/Comment').query().with('commentable').limit(2).fetch()).toJSON());
-  use('App/Models/Course').listFields
+  // const user = await use('App/Models/User').findBy({username: 'User43041'})
+  // console.log(await user.addBalance('charge', 10));
+  const JPush = require('jpush-sdk')
+  const axios = require('axios')
+  const config = {
+    key: use('Env').get('JPUSH_KEY'),
+    secret: use('Env').get('JPUSH_SECRET'),
+  }
+  //https://docs.jiguang.cn/jpush/server/push/rest_api_v3_device/
+  // axios.get('https://device.jpush.cn/v3/aliases/13642', {
+  axios.get('https://device.jpush.cn/v3/devices/101d8559097e2f905e7', {
+    headers: {
+      Authorization: 'Basic ' + new Buffer(config.key + ':' + config.secret).toString('base64')
+    }
+  }).then(({data}) => {
+    console.log(data);
+  }).catch(({response}) => {
+    console.log(response.data);
+  })
 }
 // main()
 

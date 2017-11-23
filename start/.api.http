@@ -1,7 +1,10 @@
 @uri = http://localhost:5555/api
 @json = Content-Type: application/json
 @ajson = Accept: application/json
-@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTEzZGZlZjg4YjA5MWEwM2NmNWE4NWQiLCJpYXQiOjE1MTEyNTQwMDd9.N2hjPptK7xYqtnxaZhZ2ppr0gW1TMxxmUAgIcrO4vOE
+//3041
+@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTE1MTU5NjZjZjdhMjVkNTAyN2JkZWMiLCJpYXQiOjE1MTE0MTc0MDl9.J8vsKUlHMs6X3YokBDBFAyvOW2M-BAe9wT5aX_lY6lk
+//3040
+@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTE2NjZiYmZjNzI1MTA5YTQ3MGQzNGMiLCJpYXQiOjE1MTE0MTc1MzF9.NQlVoycm5x2hJev-mzPizxpWw4NmMR_8tp4icoFSsAo
 
 ###
 POST {{uri}}/iap
@@ -16,7 +19,7 @@ POST {{uri}}/register
 {{ajson}}
 
 {
-  "mobile": "17621443041",
+  "mobile": "17621443040",
   "password": "123456"
 }
 ###
@@ -25,7 +28,7 @@ POST {{uri}}/login
 {{ajson}}
 
 {
-  "mobile": "17621443042",
+  "mobile": "17621443040",
   "password": "123456"
 }
 ###
@@ -65,6 +68,19 @@ GET {{uri}}/categories/course
   }
 }
 
+###
+GET {{uri}}/charges
+
+###
+POST {{uri}}/orders/create
+{{json}}
+{{auth}}
+
+{
+  "buyable_type": "Charge",
+  "payment_type": "ALI_APP",
+  "buyable_id": "5a1678cb0f214295440e4ba3"
+}
 
 ###
 GET {{uri}}/mine/orders
@@ -87,9 +103,6 @@ GET {{uri}}/courses
 
 {
   "query": {
-    "where": {
-      "category": "b"
-    },
     "page": 1,
     "perPage": 3
   }
@@ -131,7 +144,10 @@ POST {{uri}}/posts/5a13dfef88b091a03cf5a9d3/comments
 }
 
 ###
-GET {{uri}}/posts/recommends/home_book
+GET {{uri}}/posts/recommends/home_free
+{{json}}
+
+
 ###
 GET {{uri}}/posts
 {{json}}

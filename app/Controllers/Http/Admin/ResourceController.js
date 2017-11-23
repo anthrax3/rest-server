@@ -55,7 +55,7 @@ module.exports = class ResourceController {
       const ignoredFields = [
         '_id', 'created_at', 'updated_at', 'actions'
       ]
-      return v.editable === false || ignoredFields.includes(k) || !auth.user.isRole(v.role)
+      return v.editable === false || ignoredFields.includes(k) || !auth.current.user.isRole(v.role)
     })
     return {
       labels: await Model.labels(),
@@ -74,7 +74,7 @@ module.exports = class ResourceController {
 
   async store({ request, auth, Model, model }) {
     const fields = Model.fields
-    const data = _.omitBy(request.all(), (v, k) => !auth.user.isRole(fields[k].role))
+    const data = _.omitBy(request.all(), (v, k) => !auth.current.user.isRole(fields[k].role))
     
     await model.validate(data)
     

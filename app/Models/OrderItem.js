@@ -27,6 +27,7 @@ module.exports = class OrderItem extends Model {
         
       ] },
       buyable_id: { label: '产品', ref: 'buyable.title' },
+      user_id: { label: '用户', ref: 'user.username' },
       price: { label: '价格' },
       started_at: { label: '生效时间' },
       expired_at: { label: '过期时间' },

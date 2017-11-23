@@ -36,7 +36,7 @@ module.exports = class Order extends Model {
           text: 'username',
         },
         searchable: true,
-        sortable: true
+        sortable: true,
       },
       payment_type: {
         label: '支付方式',
@@ -46,6 +46,7 @@ module.exports = class Order extends Model {
           { text: '支付宝', value: 'ALI_APP' },
           { text: '微信支付', value: 'WX_APP' },
           { text: '兑换码', value: 'VOUCHER' },
+          { text: '钱包', value: 'WALLET' },
         ],
         searchable: true
       },
@@ -77,7 +78,7 @@ module.exports = class Order extends Model {
     return this.hasMany('App/Models/OrderItem', '_id', 'order_id')
   }
 
-  
+
 
   getPayData() {
     return {
@@ -85,7 +86,7 @@ module.exports = class Order extends Model {
       channel: this.payment_type,
       title: this.title,
       billno: this.no,
-      totalfee: this.total,
+      totalfee: this.total * 100,
       optional: {
         order_id: this._id
       }
@@ -95,12 +96,23 @@ module.exports = class Order extends Model {
   async paid() {
     const now = new Date
     this.paid_at = now
-    await Promise.all(this.items.map(item => {
-      item.started_at = now
-      item.expired_at = new Date(now.valueOf() + 365 * 86400000)
+    const items = await this.items().with(['user']).fetch()
+    for (let item of items.rows) {
+      const buyable = await item.buyable().first()
+      switch (item.buyable_type) {
+        case 'Course':
+          item.started_at = now
+          item.expired_at = new Date(now.valueOf() + 365 * 86400000)
+          break
+        case 'Charge':
+          const amount = Number(buyable.amount)
+          await item.user.addBalance('charge', add(buyable.amount, buyable.extra))
+          
+      }
+
       item.paid_at = now
-      item.save()
-    }))
+      await item.save()
+    }
     await this.save()
     Event.emit('order::paid', this)
   }

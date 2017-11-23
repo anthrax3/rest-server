@@ -1,8 +1,24 @@
 {
+  "_id": "ID",
   "username": "用户名",
   "password": "密码",
   "code": "验证码",
   "captcha": "验证码",
   "content": "内容",
+
+  "payment_type": "支付方式",
+  "buyable_type": "产品类型",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+  "payment_type": "支付方式",
+
+
   "mobile": "手机号"
 }

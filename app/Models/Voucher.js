@@ -13,7 +13,7 @@ module.exports = class Voucher extends Model {
       // object_id: { label: '产品ID'},
       // object_type: {label: '类型'},
       object_title: { label: '产品名称' },
-      user_id: { label: '使用人' },
+      user_id: { label: '使用人', ref: 'user.username' },
       used_at: { label: '使用时间' },
       mobile: { label: '手机号', searchable: true },
       source: { label: '来源', searchable: true},

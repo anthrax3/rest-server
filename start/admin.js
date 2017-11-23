@@ -14,6 +14,7 @@ Route.group(() => {
 //需要登录
 Route.group(() => {
 
+  Route.get('home', 'Admin/SiteController.home')
   Route.post('upload', 'Admin/SiteController.upload')
   Route.any('ueditor', 'Admin/UEditorController.handle')
 
@@ -25,7 +26,7 @@ Route.group(() => {
   Route.resource(':resource', 'Admin/ResourceController')
 
 }).prefix('admin/api').middleware([
-  'authenticator:adminJwt',
+  // 'authenticator:adminJwt',
   'auth:adminJwt',
   'query:admin',
   'resource'

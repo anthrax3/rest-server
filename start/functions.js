@@ -25,3 +25,7 @@ global.validate = async function (data, rules, messages, labels) {
 global.log = val => {
   console.log(JSON.stringify(val, null, 2));
 }
+
+global.toNumber = val => Number(val) || 0
+
+global.add = (...args) => Number(_.sum(_.map(args, toNumber)).toFixed(2))
