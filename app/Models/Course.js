@@ -136,10 +136,11 @@ module.exports = class Course extends Model {
     }
     const exist = await user.orderItems().where({
       buyable_type: this.constructor.name,
-      buyable_id: this._id,
-      started_at: { ne: null }
+      buyable_id: String(this._id),
+      paid_at: { ne: null }
     }).count()
 
+    console.log(exist);
     return !!exist
   }
 
@@ -181,6 +182,20 @@ module.exports = class Course extends Model {
   post() {
     return this.hasOne('App/Models/Post', '_id', 'course_id').select(Post.listFields).orderBy({
       _id: -1
+    })
+  }
+
+  sendPush(to, title, extra) {
+    const Push = use('Push')
+    if (!title) {
+      title = this.title
+    }
+    Push.send(to, title, {
+      winName: 'yizhisay-list',
+      pageParams: {
+        id: String(this._id),
+        from: 'push'
+      }
     })
   }
 

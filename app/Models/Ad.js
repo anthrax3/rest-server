@@ -22,10 +22,10 @@ module.exports = class Ad extends Model {
         fields: {
           title: { label: '标题' },
           image: { label: '图片', type: 'image' },
-          course_id: { label: '专栏', type: 'select', options: this.getOptions('course_id') },
-          post_id: { label: '一条', type: 'select', options: this.getOptions('post_id') },
-          book_id: { label: '书', type: 'select', options: this.getOptions('book_id') },
-          link: { label: '链接', description: '专栏/语音/链接 任选其一' },
+          course_id: { label: '点击跳转专栏', type: 'select', options: this.getOptions('course_id') },
+          post_id: { label: '点击跳转一条', type: 'select', options: this.getOptions('post_id') },
+          book_id: { label: '点击跳转书', type: 'select', options: this.getOptions('book_id') },
+          link: { label: '点击跳转链接', description: '专栏/一条/书/链接 任选其一' },
         },
 
       },

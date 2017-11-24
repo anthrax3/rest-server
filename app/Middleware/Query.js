@@ -27,6 +27,9 @@ class Query {
       query.perPage = parseInt(pagesize[query.perPage]) || 10
     }
 
+    query.page = Math.max(toNumber(query.page, 1), 1)
+    query.perPage = Math.min(Math.max(toNumber(query.perPage, 10), 1), 25)
+
     _.mapValues(query.where, (v, k) => {
       if (v === '' || v === null || _.isEqual(v, []) || _.isEqual(v, [null])) {
         return delete query.where[k]

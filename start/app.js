@@ -22,6 +22,7 @@ const providers = [
   'lucid-mongo/providers/LucidMongoProvider',
 
   __dirname + '/../app/Providers/Drive/DriveProvider',
+  __dirname + '/../app/Providers/Push/PushProvider',
   __dirname + '/../app/Providers/Sms/SmsProvider',
   __dirname + '/../app/Providers/Validator/ValidatorProvider',
 

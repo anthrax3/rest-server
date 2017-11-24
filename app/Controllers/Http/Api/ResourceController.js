@@ -38,8 +38,12 @@ module.exports = class ResourceController {
 
     let data = await Model.query(query).listFields().skip(offset).limit(limit).fetch()
 
+    // console.log(Model.listFields);
     data = await this.processData(ctx, query, data)
-    const total = await Model.where(query.where).count()
+    if (query.where.category) {
+      
+    }
+    const total = await Model.where(query.where).count() || 0
     const lastPage = Math.ceil(total / perPage)
     return {
       lastPage,
@@ -59,10 +63,12 @@ module.exports = class ResourceController {
     const Category = use('App/Models/Category')
     const { category } = query.where || {}
     if (category) {
-      const parent = await Category.findBy({ key: category })
-      const cats = await Category.where({ parent_id: parent._id }).fetch()
-      const ids = _.map(cats.toJSON(), '_id')
-      ids.push(parent._id)
+      const parent = await Category.where({
+        key: category
+      }).with('children').firstOrFail()
+
+      const ids = _.map(parent.toJSON().children, v => String(v._id))
+      ids.push(String(parent._id))
       delete query.where.category
       query.where.category_ids = { in: ids }
       

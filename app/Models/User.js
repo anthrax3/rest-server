@@ -107,6 +107,10 @@ module.exports = class User extends Model {
 
     for (let item of itemsData) {
       const buyable = await use('App/Models/' + item.buyable_type).find(item.buyable_id)
+      if (!buyable) {
+        throw new Error('无效的产品')
+      }
+      // item.buyable_id = buyable._id
       item.title = buyable.title
       item.price = buyable.price
       if (buyable.buyData) {
@@ -181,5 +185,14 @@ module.exports = class User extends Model {
     use('Event').emit('user::addBalance', log)
     return this.balance
   }
+
+  async appendProfileLikeCount() {
+    return this.actions().where({name: 'like'}).count()
+  }
+  
+  async appendFollowCount() {
+    return this.actions().where({name: 'follow'}).count()
+  }
+
 
 }

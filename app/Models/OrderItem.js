@@ -5,6 +5,10 @@ const User = use('App/Models/User')
 
 module.exports = class OrderItem extends Model {
 
+  static get objectIDs() {
+    return ['_id', 'buyable_id', 'user_id', 'order_id']
+  }
+
   static get label() {
     return '订单产品'
   }
@@ -12,20 +16,22 @@ module.exports = class OrderItem extends Model {
   static get fields() {
     return {
       _id: { sortable: true },
-      buyable_type: { label: '产品类型', options: [
-        {
-          text: ''
-        },
-        {
-          text: '专栏',
-          value: 'Course'
-        },
-        {
-          text: '一条',
-          value: 'Post'
-        },
-        
-      ] },
+      buyable_type: {
+        label: '产品类型', options: [
+          {
+            text: ''
+          },
+          {
+            text: '专栏',
+            value: 'Course'
+          },
+          {
+            text: '一条',
+            value: 'Post'
+          },
+
+        ]
+      },
       buyable_id: { label: '产品', ref: 'buyable.title' },
       user_id: { label: '用户', ref: 'user.username' },
       price: { label: '价格' },
@@ -53,7 +59,7 @@ module.exports = class OrderItem extends Model {
     return relatedModel.where(query.primaryKey, query.parentInstance[query.foreignKey])
   }
 
-  buyable () {
+  buyable() {
     return this.morphTo('App/Models', 'buyable_type', '_id', 'buyable_id')
   }
 

@@ -26,6 +26,6 @@ global.log = val => {
   console.log(JSON.stringify(val, null, 2));
 }
 
-global.toNumber = val => Number(val) || 0
+global.toNumber = (val, defaultValue = 0) => Number(val) || defaultValue
 
 global.add = (...args) => Number(_.sum(_.map(args, toNumber)).toFixed(2))

@@ -2,7 +2,7 @@
 
 const { ServiceProvider, ioc } = require('@adonisjs/fold')
 
-const Sms = require("./JSms")
+const Sms = require("./Sms")
 
 module.exports = class SmsProvider extends ServiceProvider {
 

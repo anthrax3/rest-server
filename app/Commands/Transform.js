@@ -34,24 +34,25 @@ module.exports = class Transform extends Command {
     // await this.syncNews()
 
 
-    await this.syncAdmin()
-    await this.syncCategories()
+    // await this.syncAdmin()
+    // await this.syncCategories()
 
-    await this.syncUsers()
-    await this.syncOauth()
-    await this.syncCourses()
-    await this.syncComments()
-    await this.syncAds()
+    // await this.syncUsers()
+    // await this.syncOauth()
+    // await this.syncCourses()
+    // await this.syncComments()
+    // await this.syncAds()
 
-    await this.syncVouchers()
-    await this.syncOptions()
-    await this.syncActions()
-    await this.syncAssoc()
-    await this.syncOrders()
+    // await this.syncVouchers()
+    // await this.syncOptions()
+    // await this.syncActions()
+    // await this.syncAssoc()
+    // await this.syncOrders()
 
-    await this.syncDevices()
+    // await this.syncDevices()
 
-    await this.syncSms()
+    // await this.syncSms()
+    // await this.syncCharges()
 
     // await this.createIndexes()
 
@@ -99,6 +100,23 @@ module.exports = class Transform extends Command {
     })
     c('admin_users').createIndex({ role: 1 })
 
+  }
+
+  async syncCharges() {
+    const rate = 10
+    const prices = [6, 68, 168, 268, 368, 668]
+    const charges = []
+    for (let k in prices) {
+      const price = prices[k]
+      charges.push({
+        title: `充值${price}元`,
+        price,
+        amount: price * rate,
+        extra: parseInt(price * Math.pow(1.15, k))
+      })
+    }
+
+    await this.insert('charges', charges)
   }
 
   async syncOptions() {

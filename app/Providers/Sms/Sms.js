@@ -3,7 +3,7 @@
 const axios = require('axios')
 const crypto = require('crypto')
 
-module.exports = class JPushSms {
+module.exports = class Sms {
 
   constructor(config) {
 
