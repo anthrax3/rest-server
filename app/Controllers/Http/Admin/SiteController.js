@@ -11,7 +11,7 @@ module.exports = class SiteController {
 
   async site() {
     const menu = await Option.get('adminMenu')
-    const site = await Option.get('site')
+    const site = await Option.get('site') || {}
     site.menu = menu
     return site
   }

@@ -52,7 +52,7 @@ module.exports = class Transform extends Command {
     // await this.syncDevices()
 
     // await this.syncSms()
-    // await this.syncCharges()
+    await this.syncCharges()
 
     // await this.createIndexes()
 
