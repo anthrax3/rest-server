@@ -175,4 +175,9 @@ module.exports = class SiteController {
     return token
   }
 
+  async advices(){
+    const category = await use('App/Models/Category').findBy({key: 'feedback'})
+    return await category.children().fetch()
+  }
+
 }

@@ -28,6 +28,8 @@ Route.group(() => {
 //必须登录的资源路由
 Route.group(() => {
 
+  Route.get('comments/messages', 'Api/UserController.comments')
+  Route.get('collections/:type', 'Api/UserController.collections')
   Route.post(':resource/:id/collections', 'Api/ResourceController.collect')
   Route.post(':resource/:id/comments', 'Api/ResourceController.comment')
 
@@ -42,6 +44,8 @@ Route.group(() => {
 Route.group(() => {
 
   Route.get('index', 'Api/SiteController.index')
+  Route.get('advices', 'Api/SiteController.advices').middleware(['resource:advices'])
+  Route.post('advices', 'Api/AdviceController.store').middleware(['resource:advices'])
   Route.get('posts/recommends/:name', 'Api/PostController.recommends')
 
   Route.post('login', 'Api/SiteController.login')

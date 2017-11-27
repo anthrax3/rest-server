@@ -81,6 +81,10 @@ module.exports = class User extends Model {
   actions() {
     return this.hasMany('App/Models/Action', '_id', 'user_id')
   }
+  comments() {
+    return this.hasMany('App/Models/Comment', '_id', 'user_id')
+  }
+  
 
   orders() {
     return this.hasMany('App/Models/Order', '_id', 'user_id')

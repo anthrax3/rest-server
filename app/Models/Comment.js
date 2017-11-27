@@ -60,6 +60,12 @@ module.exports = class Comment extends Model {
   user() {
     return this.belongsTo('App/Models/User', 'user_id', '_id').select(User.listFields)
   }
+
+  morphQuery(query) {
+    return use(`App/Models/${this.commentable_type}`).query(query).where({
+      _id: this.commentable_id
+    })
+  }
   
 
 }

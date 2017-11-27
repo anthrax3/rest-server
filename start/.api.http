@@ -92,7 +92,15 @@ POST {{uri}}/orders/create
   "payment_type": "WALLET",
   "buyable_id": "5A13DFEF88B091A03CF5A9D2"
 }
-
+###
+GET {{uri}}/comments/messages
+{{auth}}
+###
+GET {{uri}}/collections/courses
+{{auth}}
+###
+GET {{uri}}/users/1/likes
+{{auth}}
 ###
 GET {{uri}}/mine/orders?all=true
 {{json}}
@@ -126,7 +134,7 @@ POST {{uri}}/courses/5a13dfef88b091a03cf5a9bf/collections
 {{auth}}
 
 ###
-GET {{uri}}/courses/5a13dfef88b091a03cf5a9bf
+GET {{uri}}/courses/5a13dfef88b091a03cf5a9d2
 {{json}}
 {{ajson}}
 {{auth}}

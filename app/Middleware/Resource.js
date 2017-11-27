@@ -5,10 +5,10 @@ const _ = require('lodash')
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
 class Resource {
-  async handle(ctx, next) {
+  async handle(ctx, next, name) {
     const { request, auth, params, query } = ctx
 
-    const resource = params.resource
+    const resource = params.resource || name
     if (resource) {
       let className = inflection.classify(resource)
       if (['sms'].includes(resource)) {

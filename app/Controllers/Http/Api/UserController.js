@@ -80,6 +80,25 @@ module.exports = class UserController {
 
   }
 
+  async collections({ auth, query, params }) {
+    const data = await auth.current.user.actions().where({
+      name: 'collection',
+      actionable_type: inflection.classify(params.type)
+    }).paginate(query.page, query.perPage)
+    for (let row of data.rows) {
+      switch (row.actionable_type) {
+        case 'Post':
+          row.actionable = await row.morphQuery().listFields().with(['course', 'user']).first()
+          break
+        case 'Course':
+          row.actionable = await row.morphQuery().listFields().with(['post', 'user']).first()
+          break
+      }
+    }
+    return data
+
+  }
+
   async follows({ auth, query }) {
     const data = await auth.current.user.actions().where({
       name: 'follow',
@@ -96,4 +115,23 @@ module.exports = class UserController {
     }
     return data
   }
+
+  async comments({ auth, query, params }) {
+    const data = await auth.current.user.comments().where({
+      // commentable_type: inflection.classify(params.type)
+    }).paginate(query.page, query.perPage)
+    for (let row of data.rows) {
+      switch (row.commentable_type) {
+        case 'Post':
+          row.commentable = await row.morphQuery().listFields().with(['course', 'user']).first()
+          break
+        case 'Course':
+          row.commentable = await row.morphQuery().listFields().with(['post', 'user']).first()
+          break
+      }
+    }
+    return data
+
+  }
+
 }
