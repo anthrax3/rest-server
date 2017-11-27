@@ -4,9 +4,17 @@ const _ = require('lodash')
 const Helpers = use('Helpers')
 const Config = use('Config')
 const Drive = use('Drive')
+const Option = use('App/Models/Option')
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
 module.exports = class SiteController {
+
+  async site() {
+    const menu = await Option.get('adminMenu')
+    const site = await Option.get('site')
+    site.menu = menu
+    return site
+  }
 
   async home({ }) {
     const Comment = use('App/Models/Comment')

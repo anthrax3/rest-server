@@ -55,6 +55,12 @@ module.exports = class Action extends Model {
   actionable () {
     return this.morphTo('App/Models', 'actionable_type', '_id', 'actionable_id')
   }
+
+  morphQuery(query) {
+    return use(`App/Models/${this.actionable_type}`).query(query).where({
+      _id: this.actionable_id
+    })
+  }
   
 
 }

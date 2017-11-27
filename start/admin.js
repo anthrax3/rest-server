@@ -4,6 +4,7 @@ const Route = use('Route')
 Route.group(() => {
 
   Route.post('login', 'Admin/SiteController.login')
+  Route.get('site', 'Admin/SiteController.site')
   
 
 }).prefix('admin/api').middleware([

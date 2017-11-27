@@ -62,15 +62,38 @@ module.exports = class UserController {
   }
 
   async likes({ auth, query }) {
-    return auth.current.user.actions().where({
+    const data = await auth.current.user.actions().where({
       name: 'like',
       // actionable_type: inflection.classify(request.input('type'))
-    }).with('actionable').paginate(query.page, query.perPage)
+    }).paginate(query.page, query.perPage)
+    for (let row of data.rows) {
+      switch (row.actionable_type) {
+        case 'Post':
+          row.actionable = await row.morphQuery().listFields().with(['course', 'user']).first()
+          break
+        case 'Course':
+          row.actionable = await row.morphQuery().listFields().with(['post', 'user']).first()
+          break
+      }
+    }
+    return data
+
   }
 
   async follows({ auth, query }) {
-    return auth.current.user.actions().where({
+    const data = await auth.current.user.actions().where({
       name: 'follow',
-    }).with('actionable').paginate(query.page, query.perPage)
+    }).paginate(query.page, query.perPage)
+    for (let row of data.rows) {
+      switch (row.actionable_type) {
+        case 'Post':
+          row.actionable = await row.morphQuery().listFields().with(['course', 'user']).first()
+          break
+        case 'Course':
+          row.actionable = await row.morphQuery().listFields().with(['post', 'user']).first()
+          break
+      }
+    }
+    return data
   }
 }
