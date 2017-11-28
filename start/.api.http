@@ -171,7 +171,7 @@ POST {{uri}}/courses/5a13dfef88b091a03cf5a9bf/collections
 {{auth}}
 
 ###
-GET {{uri}}/courses/5a13dfef88b091a03cf5a9d2
+GET {{uri}}/courses/5a13dfef88b091a03cf5a9bf
 {{json}}
 {{ajson}}
 {{auth}}
@@ -186,6 +186,7 @@ GET {{uri}}/posts/5a13dfef88b091a03cf5aa16
 
 {
   "query": {
+    "select": ["_id", "title", "voice"],
     "with": ["user", "course"]
   }
 }
@@ -199,6 +200,10 @@ POST {{uri}}/posts/5a13dfef88b091a03cf5a9d3/comments
 {
   "content": "挺好的"
 }
+###
+GET {{uri}}/properties/position
+###
+GET {{uri}}/experts/params
 
 ###
 GET {{uri}}/posts/recommends/home_free
