@@ -16,7 +16,9 @@ Route.group(() => {
   Route.post('iap', 'Api/PaymentController.verifyIap')
   Route.get('profile', 'Api/UserController.profile')
   Route.get('users/:id/likes', 'Api/UserController.likes')
+  Route.get('users/:id/follows', 'Api/UserController.follows')
   Route.post('actions', 'Api/UserController.action')
+  Route.post('users', 'Api/UserController.update')
   
 }).prefix('api').middleware([
   // 'authenticator:jwt',
@@ -44,17 +46,25 @@ Route.group(() => {
 Route.group(() => {
 
   Route.get('index', 'Api/SiteController.index')
+  Route.get('experts/params', 'Api/SiteController.properties')
   Route.get('advices', 'Api/SiteController.advices').middleware(['resource:advices'])
   Route.post('advices', 'Api/AdviceController.store').middleware(['resource:advices'])
+
+
+  Route.post('vouchers/active', 'Api/VoucherController.active')
+  Route.post('vouchers/get', 'Api/VoucherController.get')
   Route.get('posts/recommends/:name', 'Api/PostController.recommends')
 
   Route.post('login', 'Api/SiteController.login')
   Route.post('register', 'Api/SiteController.register')
   Route.post('checkMobileExist', 'Api/SiteController.checkMobileExist')
   Route.post('captcha', 'Api/SiteController.captcha')
+  Route.post('devices', 'Api/SiteController.addDevice')
   Route.post('payment', 'Api/PaymentController.hook')
   Route.post('iap', 'Api/PaymentController.verifyIap')
 
+  Route.post('reset', 'Api/UserController.resetPassword')
+  
 }).prefix('api').middleware([
   'authenticator:jwt',
   'query:api',

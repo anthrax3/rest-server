@@ -58,7 +58,9 @@ module.exports = class UserController {
   }
 
   async profile({ auth }) {
-    return auth.current.user
+    const user = auth.current.user
+    await user.fetchAppends({}, ['profile_like_count', 'follow_count'])
+    return user
   }
 
   async likes({ auth, query }) {
@@ -66,6 +68,7 @@ module.exports = class UserController {
       name: 'like',
       // actionable_type: inflection.classify(request.input('type'))
     }).paginate(query.page, query.perPage)
+    const newRows = []
     for (let row of data.rows) {
       switch (row.actionable_type) {
         case 'Post':
@@ -85,16 +88,18 @@ module.exports = class UserController {
       name: 'collection',
       actionable_type: inflection.classify(params.type)
     }).paginate(query.page, query.perPage)
+    const newRows = []
     for (let row of data.rows) {
       switch (row.actionable_type) {
         case 'Post':
-          row.actionable = await row.morphQuery().listFields().with(['course', 'user']).first()
+        newRows.push(await row.morphQuery().listFields().with(['course', 'user']).first())
           break
         case 'Course':
-          row.actionable = await row.morphQuery().listFields().with(['post', 'user']).first()
+        newRows.push(row = await row.morphQuery().listFields().with(['post', 'user']).first())
           break
       }
     }
+    data.rows = newRows
     return data
 
   }
@@ -103,21 +108,26 @@ module.exports = class UserController {
     const data = await auth.current.user.actions().where({
       name: 'follow',
     }).paginate(query.page, query.perPage)
+    const newRows = []
     for (let row of data.rows) {
       switch (row.actionable_type) {
         case 'Post':
-          row.actionable = await row.morphQuery().listFields().with(['course', 'user']).first()
+          newRows.push(await row.morphQuery().listFields().with(['course', 'user']).first())
           break
         case 'Course':
-          row.actionable = await row.morphQuery().listFields().with(['post', 'user']).first()
+          newRows.push(await row.morphQuery().listFields().with(['post', 'user']).first())
+          break
+        case 'User':
+          newRows.push(await row.morphQuery().listFields().first())
           break
       }
     }
+    data.rows = newRows
     return data
   }
 
   async comments({ auth, query, params }) {
-    const data = await auth.current.user.comments().where({
+    const data = await auth.current.user.comments().with(['user']).where({
       // commentable_type: inflection.classify(params.type)
     }).paginate(query.page, query.perPage)
     for (let row of data.rows) {
@@ -132,6 +142,39 @@ module.exports = class UserController {
     }
     return data
 
+  }
+
+
+  async resetPassword({request, auth}) {
+    const data = request.only([
+      'mobile', 'password'
+    ])
+    const user = await User.findBy({mobile: data.mobile})
+    user.password = data.password
+    await user.save()
+    const token = await auth.generate(user)
+    token.user = user
+    return token
+  }
+
+  async update({request, auth}) {
+    const user = auth.current.user
+    const data = request.only([
+      'position', 
+      'invitationCode',
+
+      'username',
+      'profession',
+      'introduction',
+      'birthday',
+      'mobile',
+    ])
+    await validate(data, {
+      mobile: 'mobile'
+    })
+    user.merge(data)
+    await user.save()
+    return user
   }
 
 }

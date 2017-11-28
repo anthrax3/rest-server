@@ -76,7 +76,7 @@ module.exports = class Post extends Model {
   }
 
   getVoice(val) {
-    return this.uploadUri(val)
+    return decodeURI(this.uploadUri(val))
   }
 
   async appendCollectionCount() {
@@ -118,6 +118,11 @@ module.exports = class Post extends Model {
 
   course() {
     return this.belongsTo('App/Models/Course', 'course_id', '_id').listFields()
+  }
+
+  //相关语音
+  posts() {
+    return this.hasMany('App/Models/Post', 'course_id', 'course_id').listFields()
   }
 
   user() {

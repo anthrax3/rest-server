@@ -42,7 +42,7 @@ module.exports = class Sms {
     const ret = await this.post(`codes/${msgId}/valid`, {
       code
     })
-    console.log('sms: ', ret);
+    // console.log('sms: ', ret);
     return ret.is_valid || ret.error.code == 50012
   }
 

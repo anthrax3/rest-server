@@ -8,8 +8,14 @@ const Config = use('Config')
 
 class Query {
   async handle (ctx, next, param) {
-
+    
     const { request, params } = ctx
+    console.log(
+      request.method(),
+      request.url(),
+      request.all()
+
+    );
     // call next to advance the request
 
     const resource = params.resource
@@ -20,6 +26,12 @@ class Query {
     }
     if(!query.where) {
       query.where = {}
+    }
+
+    let page = toNumber(request.input('page', 1))
+    let perPage = toNumber(request.input('perPage', 1))
+    if (!query.page) {
+      query.page = page
     }
 
     if (_.isString(query.perPage)) {

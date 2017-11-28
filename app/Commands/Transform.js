@@ -284,6 +284,20 @@ module.exports = class Transform extends Command {
           }
         ]
       },
+      {
+        "_id": ObjectId("5a1b815a8f56ea5e8c414f42"),
+        "title": "站点配置",
+        "name": "site",
+        "fields": "{\"name\":{\"label\":\"站点名称\"},\"logo\": {\"type\":\"image\",\"label\":\"LOGO\"}}",
+        "isTable": false,
+        "isArray": false,
+        "created_at": "2017-11-27T03:07:06.000Z",
+        "updated_at": "2017-11-27T03:15:31.377Z",
+        "data": {
+          "name": "一值",
+          "logo": "http://worthdaily-app.oss-cn-hangzhou.aliyuncs.com/undefinedlogo/LOGO20170427.jpg"
+        }
+      }
     ]
     await this.insert('options', options)
   }

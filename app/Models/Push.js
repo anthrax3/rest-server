@@ -25,4 +25,7 @@ module.exports = class Push extends Model {
     }
   }
 
+
+  static async send(to, object)
+
 }

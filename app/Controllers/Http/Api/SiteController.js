@@ -68,7 +68,7 @@ module.exports = class SiteController {
       //开始校验
       const valid = await SmsSender.verify(sms.msg_id, captcha)
       if (!valid) {
-        console.log(sms.toJSON(), captcha);
+        // console.log(sms.toJSON(), captcha);
         throw new HttpException('验证码无效', 400)
       }
       //校验成功
@@ -175,9 +175,32 @@ module.exports = class SiteController {
     return token
   }
 
-  async advices(){
-    const category = await use('App/Models/Category').findBy({key: 'feedback'})
+  async advices() {
+    const category = await use('App/Models/Category').findBy({ key: 'feedback' })
     return await category.children().fetch()
+  }
+
+  async addDevice({ request, auth }) {
+    const Device = m('Device')
+    const data = request.only([
+      'os','did','model','width','version','name'
+    ])
+    await validate(data, {
+      did: 'required'
+    })
+    let model = await Device.findBy('did', data.did)
+    if (model) {
+      return model
+    }
+    model = new Device(data)
+    model.user_id = auth._id
+    await model.save()
+    return model
+  }
+
+  async properties(){
+    const properties = await m('Property').fetch()
+    return _.mapValues(_.keyBy(properties.toJSON(), 'name'), 'children')
   }
 
 }

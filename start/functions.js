@@ -8,6 +8,7 @@ const inflection = require('inflection')
 
 global._ = _
 global.inflection = inflection
+global.m = name => use('App/Models/' + name)
 global.validate = async function (data, rules, messages, labels) {
   messages = Object.assign({}, Antl.list('validations'), messages)
   labels = Object.assign({}, Antl.list('labels'), labels)
@@ -15,7 +16,7 @@ global.validate = async function (data, rules, messages, labels) {
   if (validation.fails()) {
     let errorMessages = _.each(validation.messages(), v => {
       v.message = String(v.message).replace(v.field, labels[v.field])
-      console.log(v);
+      // console.log(v);
       return v
     })
     throw new HttpException(errorMessages, 422)

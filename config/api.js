@@ -47,7 +47,7 @@ module.exports = {
           appends: ['is_buy', 'is_collected', 'collection_count'],
         },
         show: {
-          with: ['user', 'posts', 'comments'],
+          with: ['comments','user', 'posts'],
           appends: ['is_buy', 'is_collected', 'collection_count'],
         }
       }

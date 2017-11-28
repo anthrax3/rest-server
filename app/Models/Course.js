@@ -140,7 +140,7 @@ module.exports = class Course extends Model {
       paid_at: { ne: null }
     }).count()
 
-    console.log(exist);
+    // console.log(exist);
     return !!exist
   }
 
@@ -167,6 +167,9 @@ module.exports = class Course extends Model {
   }
 
   comments() {
+    return this.manyThrough('App/Models/Post', 'comments', '_id', 'course_id').where({
+      is_top: true
+    }).with('user').limit(3)
     return this.morphMany('App/Models/Comment', 'commentable_type', 'commentable_id')
   }
 

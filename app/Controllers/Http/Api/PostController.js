@@ -12,7 +12,8 @@ const BaseController = require('./ResourceController')
 
 module.exports = class PostController extends BaseController {
 
-  async recommends({ params, query }) {
+  async recommends(ctx) {
+    const { params, query } = ctx
     const recommend = await Option.get('recommend')
     const ids = recommend[params.name]
     let whereId = recommend[params.name]
@@ -23,9 +24,15 @@ module.exports = class PostController extends BaseController {
       _id: whereId
     }).with(['course.categories', 'user'])
     if (_.isArray(ids)) {
-      return await finder.fetch()
+      const posts = await finder.fetch()
+      for(let post of posts.rows) {
+        await post.fetchAppends(ctx, ['is_buy'])
+      }
+      return posts
     } else {
-      return await finder.first()
+      const post = await finder.first()
+      await post.fetchAppends(ctx, ['is_buy'])
+      return post
     }
 
   }

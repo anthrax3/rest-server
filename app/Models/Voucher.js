@@ -1,6 +1,7 @@
 'use strict'
 
 const Model = require('./Model')
+const User = m('User')
 
 module.exports = class Voucher extends Model {
   static get label() {
@@ -31,12 +32,27 @@ module.exports = class Voucher extends Model {
   }
 
   async appendObjectTitle() {
-    console.log('append object title');
     const Model = use(`App/Models/${this.object_type}`)
     const data = await Model.where({
       _id: { in: this.object_id }
     }).select(['_id', 'title']).fetch()
     return _.map(data.toJSON(), 'title').join(', ')
+  }
+
+  async active(){
+    const user = await User.find(this.user_id)
+    if (!user) {
+      throw new Error('用户不存在')
+    }
+    const items = _.map(this.object_id, id => ({
+      buyable_type: this.object_type,
+      buyable_id: id
+    }))
+    const order = await user.buy({
+      payment_type: 'VOUCHER'
+    }, items)
+    await order.paid()
+    return order
   }
 
 }

@@ -76,6 +76,24 @@ GET {{uri}}/categories/course
 
 ###
 GET {{uri}}/charges
+###
+POST {{uri}}/vouchers/get
+{{json}}
+
+{
+  "object_type": "Course",
+  "object_id": "5a13dfef88b091a03cf5a9bf",
+  "mobile": "17621443042"
+}
+###
+POST {{uri}}/vouchers/active
+{{json}}
+{{auth}}
+
+{
+  "code": "1576845338",
+  "user_id": "5a13dfef88b091a03cf5a85d"
+}
 
 ###
 POST {{uri}}/orders/create
@@ -93,6 +111,22 @@ POST {{uri}}/orders/create
   "buyable_id": "5A13DFEF88B091A03CF5A9D2"
 }
 ###
+GET {{uri}}/advices
+
+###
+POST {{uri}}/advices
+{{json}}
+
+{
+  "category_id": "5a13dfef88b091a03cf5a824",
+  "content": "测试反馈"
+}
+
+###
+POST {{uri}}/devices
+{{auth}}
+
+###
 GET {{uri}}/comments/messages
 {{auth}}
 ###
@@ -100,6 +134,9 @@ GET {{uri}}/collections/courses
 {{auth}}
 ###
 GET {{uri}}/users/1/likes
+{{auth}}
+###
+GET {{uri}}/users/1/follows
 {{auth}}
 ###
 GET {{uri}}/mine/orders?all=true
@@ -153,7 +190,7 @@ GET {{uri}}/posts/5a13dfef88b091a03cf5aa16
   }
 }
 ###
-GET {{uri}}/posts/5a13dfef88b091a03cf5a9d3/comments
+GET {{uri}}/posts/5a13dfef88b091a03cf5a9d3/comments?page=1
 ###
 POST {{uri}}/posts/5a13dfef88b091a03cf5a9d3/comments
 {{json}}

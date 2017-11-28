@@ -30,7 +30,7 @@ module.exports = class Push {
       .setMessage(content, null, 'text', extra)
       .send((err, res) => {
         if (err) {
-          return console.log(err.message);
+          // return console.log(err.message);
         }
         const PushModel = use('App/Models/Push')
         PushModel.create({

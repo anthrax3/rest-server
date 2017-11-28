@@ -21,6 +21,7 @@ module.exports = class Advice extends Model {
       user_id: { label: '用户', ref: 'user.username' },
       device_id: { label: '设备ID', listable: false },
       device_data: { label: '设备信息', listable: false },
+      created_at: { label: '反馈时间'},
       actions: {
         buttons: {
           edit: false

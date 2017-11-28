@@ -113,6 +113,7 @@ module.exports = class ResourceController {
       content: 'required'
     })
     data.user_id = auth.user._id
+    data.is_checked = true
     return await model.comments().create(data)
   }
 
