@@ -17,7 +17,7 @@ module.exports = class Voucher extends Model {
       user_id: { label: '使用人', ref: 'user.username' },
       used_at: { label: '使用时间' },
       mobile: { label: '手机号', searchable: true },
-      source: { label: '来源', searchable: true},
+      source: { label: '来源', searchable: true },
 
       actions: {
         buttons: {
@@ -33,13 +33,28 @@ module.exports = class Voucher extends Model {
 
   async appendObjectTitle() {
     const Model = use(`App/Models/${this.object_type}`)
+    if (!this.object_id || !this.object_id[0]) {
+      return ''
+    }
+    if (!Array.isArray(this.object_id)) {
+      this.object_id = [this.object_id]
+    }
+    
     const data = await Model.where({
       _id: { in: this.object_id }
     }).select(['_id', 'title']).fetch()
     return _.map(data.toJSON(), 'title').join(', ')
   }
 
-  async active(){
+  static boot() {
+    super.boot()
+
+    this.addHook('afterFetch', async (models) => {
+
+    })
+  }
+
+  async active() {
     const user = await User.find(this.user_id)
     if (!user) {
       throw new Error('用户不存在')

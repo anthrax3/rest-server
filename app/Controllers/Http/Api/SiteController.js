@@ -203,4 +203,9 @@ module.exports = class SiteController {
     return _.mapValues(_.keyBy(properties.toJSON(), 'name'), 'children')
   }
 
+  async contact() {
+    const site = await m('Option').get('site')
+    return _.pick(site, ['wechat', 'email'])
+  }
+
 }

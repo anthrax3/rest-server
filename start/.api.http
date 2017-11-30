@@ -1,13 +1,15 @@
 @uri = http://localhost:5555/api
+@php = http://localhost:9001/api
 @json = Content-Type: application/json
 @ajson = Accept: application/json
 //3042
 @auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTEzZGZlZjg4YjA5MWEwM2NmNWE4NWQiLCJpYXQiOjE1MTE0OTI3ODZ9.iVygjg-K-GYi1WC7IjPM9ZrEnSpOLgbYSqTQegEihgA
 //3041
-// @auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTE1MTU5NjZjZjdhMjVkNTAyN2JkZWMiLCJpYXQiOjE1MTE0MTc0MDl9.J8vsKUlHMs6X3YokBDBFAyvOW2M-BAe9wT5aX_lY6lk
+//@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTE1MTU5NjZjZjdhMjVkNTAyN2JkZWMiLCJpYXQiOjE1MTE0MTc0MDl9.J8vsKUlHMs6X3YokBDBFAyvOW2M-BAe9wT5aX_lY6lk
 //3040
 // @auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTE2NjZiYmZjNzI1MTA5YTQ3MGQzNGMiLCJpYXQiOjE1MTE0MTc1MzF9.NQlVoycm5x2hJev-mzPizxpWw4NmMR_8tp4icoFSsAo
-
+###
+GET {{uri}}/contact
 ###
 POST {{uri}}/iap
 {{json}}
@@ -74,8 +76,7 @@ GET {{uri}}/categories/course
   }
 }
 
-###
-GET {{uri}}/charges
+
 ###
 POST {{uri}}/vouchers/get
 {{json}}
@@ -96,20 +97,24 @@ POST {{uri}}/vouchers/active
 }
 
 ###
+GET {{uri}}/payment/channels
+###
+GET {{uri}}/charges
+###
 POST {{uri}}/orders/create
 {{json}}
 {{auth}}
 
-# {
-#   "buyable_type": "Charge",
-#   "payment_type": "ALI_APP",
-#   "buyable_id": "5a1678cb0f214295440e4ba3"
-# }
 {
-  "buyable_type": "Course",
-  "payment_type": "WALLET",
-  "buyable_id": "5A13DFEF88B091A03CF5A9D2"
+  "buyable_type": "Charge",
+  "payment_type": "ALI_APP",
+  "buyable_id": "5a17ac4392907b2b3cf923f9"
 }
+# {
+#   "buyable_type": "Course",
+#   "payment_type": "WALLET",
+#   "buyable_id": "5A13DFEF88B091A03CF5A9D2"
+# }
 ###
 GET {{uri}}/advices
 
@@ -139,7 +144,15 @@ GET {{uri}}/users/1/likes
 GET {{uri}}/users/1/follows
 {{auth}}
 ###
-GET {{uri}}/mine/orders?all=true
+POST {{uri}}/users/1
+{{auth}}
+{{json}}
+
+{
+  "introduction": "好好好"
+}
+###
+GET {{uri}}/mine/orders?type=Course
 {{json}}
 {{ajson}}
 {{auth}}
@@ -167,11 +180,17 @@ GET {{uri}}/courses
   }
 }
 ###
-POST {{uri}}/courses/5a13dfef88b091a03cf5a9bf/collections
+POST {{uri}}/courses/5a13dfef88b091a03cf5a9c0/collections
+#POST {{uri}}/courses/5a13dfef88b091a03cf5a9d2/likes
+#POST {{uri}}/posts/5a13dfef88b091a03cf5a9d3/collections
+#POST {{uri}}/posts/5a13dfef88b091a03cf5a9d3/likes
+#POST {{uri}}/follows/5a13dfef88b091a03cf5a870
 {{auth}}
 
 ###
-GET {{uri}}/courses/5a13dfef88b091a03cf5a9bf
+
+###
+GET {{uri}}/courses/5A13DFEF88B091A03CF5A9BF
 {{json}}
 {{ajson}}
 {{auth}}
@@ -181,14 +200,11 @@ GET {{uri}}/courses/5a13dfef88b091a03cf5a9bf
 }
 
 ###
-GET {{uri}}/posts/5a13dfef88b091a03cf5aa16
+GET {{uri}}/posts/5a13dfef88b091a03cf5a9d5
 {{json}}
 
 {
-  "query": {
-    "select": ["_id", "title", "voice"],
-    "with": ["user", "course"]
-  }
+  "query": {}
 }
 ###
 GET {{uri}}/posts/5a13dfef88b091a03cf5a9d3/comments?page=1

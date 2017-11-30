@@ -31,7 +31,7 @@ module.exports = class Course extends Model {
   static get fields() {
     return {
       _id: { sortable: true, searchable: true },
-      title: { label: '标题', cols: 4, block: true },
+      title: { label: '标题', cols: 4, block: true, searchable: true },
       user_id: {
         label: '所属专家', type: 'select2', ref: "user.username", cols: 4,
         options: this.getOptions('user_id'), searchable: true,
@@ -85,14 +85,18 @@ module.exports = class Course extends Model {
   static boot() {
     super.boot()
 
-    // this.addHook('afterFetch', async (models) => {
-    //   const Server = use('Server')
-    //   console.log(Server.Context.auth);
-    //   for (let model of models) {
-    //     model.is_buy = true
-    //     model.collection_count = 10
-    //   }
-    // })
+    this.addTrait('Appends')
+    this.addTrait('Actions')
+    // this.addTrait('Uploads', ['cover', 'image'])
+    this.addHook('afterFetch', async (models) => {
+      
+      // for (let model of models) {
+      //   console.log(model.comments.length);
+      //   if (model.comments) {
+          
+      //   }
+      // }
+    })
   }
 
   getName() {
@@ -106,46 +110,8 @@ module.exports = class Course extends Model {
     return this.uploadUri(val)
   }
 
-  async appendCollectionCount() {
-    const count = await this.actions().where({
-      name: 'collection'
-    }).count()
-    return count || 0
-  }
-
-  async appendIsCollected({ auth }) {
-    const user = auth.user
-    if (!user) {
-      return false
-    }
-    const exist = await user.actions().where({
-      actionable_type: this.constructor.name,
-      actionable_id: this._id
-    }).count()
-
-    return !!exist
-  }
-
-  async appendIsBuy({ auth }) {
-    const user = auth.user
-    if (this.is_free) {
-      return true
-    }
-    if (!user) {
-      return false
-    }
-    const exist = await user.orderItems().where({
-      buyable_type: this.constructor.name,
-      buyable_id: String(this._id),
-      paid_at: { ne: null }
-    }).count()
-
-    // console.log(exist);
-    return !!exist
-  }
-
   user() {
-    return this.belongsTo('App/Models/User', 'user_id', '_id').select(User.listFields)
+    return this.belongsTo('App/Models/User', 'user_id', '_id').listFields()
   }
 
   categories() {
@@ -153,17 +119,7 @@ module.exports = class Course extends Model {
   }
 
   posts() {
-    return this.hasMany('App/Models/Post', '_id', 'course_id').select(Post.listFields)
-  }
-
-  actions() {
-    return this.morphMany('App/Models/Action', 'actionable_type', 'actionable_id')
-  }
-
-  collections() {
-    return this.morphMany('App/Models/Action', 'actionable_type', 'actionable_id').where({
-      name: 'collection'
-    })
+    return this.hasMany('App/Models/Post', '_id', 'course_id').listFields()
   }
 
   comments() {
@@ -183,7 +139,7 @@ module.exports = class Course extends Model {
    * 获取最新的一条
    */
   post() {
-    return this.hasOne('App/Models/Post', '_id', 'course_id').select(Post.listFields).orderBy({
+    return this.hasOne('App/Models/Post', '_id', 'course_id').listFields().orderBy({
       _id: -1
     })
   }

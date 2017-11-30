@@ -32,9 +32,14 @@ module.exports = class UserController {
 
   async orders({ request, query, auth }) {
     const OrderItem = use('App/Models/OrderItem')
-    const data = await auth.user.orderItems().where({
-      buyable_id: { ne: null }
-    }).orderBy('-_id').paginate(query.page, query.perPage || 5)
+    const buyable_type = inflection.classify(request.input('type', ''))
+    const finder = auth.user.orderItems().where({
+      buyable_id: { ne: null },
+    })
+    if (buyable_type) {
+      finder.where({buyable_type})
+    }
+    const data = await finder.orderBy('-_id').paginate(query.page, query.perPage || 5)
 
     for (let row of data.rows) {
       const query = row.morph()
@@ -149,7 +154,7 @@ module.exports = class UserController {
     const data = request.only([
       'mobile', 'password'
     ])
-    const user = await User.findBy({mobile: data.mobile})
+    const user = await User.findOrFail({mobile: data.mobile})
     user.password = data.password
     await user.save()
     const token = await auth.generate(user)
@@ -173,8 +178,35 @@ module.exports = class UserController {
       mobile: 'mobile'
     })
     user.merge(data)
-    await user.save()
+    console.log(user);
+    // await user.save()
     return user
+  }
+
+  async follow(ctx) {
+    const Action = use('App/Models/Action')
+    const name = 'follow'
+    const { request, auth, params } = ctx
+    const user = await User.findOrFail(params.id)
+    const action = await auth.user.actions().where({
+      name,
+      actionable_id: user._id,
+      actionable_type: 'User'
+    }).first()
+    if (!action) {
+      await auth.user.actions().create({
+        name,
+        actionable_id: user._id,
+        actionable_type: 'User'
+      })
+    } else {
+      await action.delete()
+    }
+    const count = await user.actions().where({name}).count()
+    return {
+      status: !action,
+      count: toNumber(count)
+    }
   }
 
 }

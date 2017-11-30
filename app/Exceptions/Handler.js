@@ -19,6 +19,17 @@ class ExceptionHandler {
    * @return {void}
    */
   async handle (error, { request, response }) {
+    console.log(
+      request.method(),
+      request.url(),
+      request.all(),
+      error
+    );
+    switch (error.name) {
+      case 'ModelNotFoundException':
+        error.message = '数据不存在'
+        break
+    }
     response.status(error.status).send({
       code: error.code,
       name: error.name,

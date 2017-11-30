@@ -29,6 +29,10 @@ module.exports = class OrderItem extends Model {
             text: '一条',
             value: 'Post'
           },
+          {
+            text: '充值',
+            value: 'Charge'
+          },
 
         ]
       },
@@ -61,6 +65,10 @@ module.exports = class OrderItem extends Model {
 
   buyable() {
     return this.morphTo('App/Models', 'buyable_type', '_id', 'buyable_id')
+  }
+
+  order() {
+    return this.belongsTo('App/Models/Order', 'order_id', '_id')
   }
 
 }

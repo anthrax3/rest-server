@@ -32,7 +32,9 @@ Route.group(() => {
 
   Route.get('comments/messages', 'Api/UserController.comments')
   Route.get('collections/:type', 'Api/UserController.collections')
+  Route.post(':follows/:id', 'Api/UserController.follow')
   Route.post(':resource/:id/collections', 'Api/ResourceController.collect')
+  Route.post(':resource/:id/likes', 'Api/ResourceController.like')
   Route.post(':resource/:id/comments', 'Api/ResourceController.comment')
 
 }).prefix('api').middleware([
@@ -46,6 +48,7 @@ Route.group(() => {
 Route.group(() => {
 
   Route.get('index', 'Api/SiteController.index')
+  Route.get('contact', 'Api/SiteController.contact')
   Route.get('experts/params', 'Api/SiteController.properties')
   Route.get('advices', 'Api/SiteController.advices').middleware(['resource:advices'])
   Route.post('advices', 'Api/AdviceController.store').middleware(['resource:advices'])
@@ -60,6 +63,7 @@ Route.group(() => {
   Route.post('checkMobileExist', 'Api/SiteController.checkMobileExist')
   Route.post('captcha', 'Api/SiteController.captcha')
   Route.post('devices', 'Api/SiteController.addDevice')
+  Route.get('payment/channels', 'Api/PaymentController.channels')
   Route.post('payment', 'Api/PaymentController.hook')
   Route.post('iap', 'Api/PaymentController.verifyIap')
 

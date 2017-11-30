@@ -23,8 +23,9 @@ module.exports = class User extends Model {
       // points: { label: '积分', cols: 4, sortable: true, editable: false },
       balance: { label: '值币', cols: 4, sortable: true, editable: true },
       type: { label: '身份', cols: 4, type: 'radiolist', options: this.getOptions('type'), searchable: true },
+      role_id: { label: '角色', cols: 4, type: 'radiolist', options: this.getOptions('role_id'), searchable: true },
       position: { label: '职位', cols: 4, type: 'select', options: this.getOptions('position'), searchable: true },
-      trade: { label: '行业', cols: 4, type: 'select', options: this.getOptions('trade'), searchable: true },
+      profession: { label: '行业', cols: 4, type: 'select', options: this.getOptions('profession'), searchable: true },
       created_at: { label: '注册时间', sortable: true, searchable: true },
       wx: {
         label: '微信',
@@ -45,7 +46,11 @@ module.exports = class User extends Model {
   static async buildOptions() {
     this.options = {
       position: await Property.fetchOptions('position'),
-      trade: await Property.fetchOptions('trade'),
+      profession: await Property.fetchOptions('profession'),
+      role_id: [
+        { text: '专家', value: 1 },
+        { text: '用户', value: 2 },
+      ],
       type: [
         { text: '从业者', value: 1 },
         { text: '投资者', value: 2 },
@@ -81,6 +86,7 @@ module.exports = class User extends Model {
   actions() {
     return this.hasMany('App/Models/Action', '_id', 'user_id')
   }
+  
   comments() {
     return this.hasMany('App/Models/Comment', '_id', 'user_id')
   }

@@ -4,6 +4,7 @@ const Model = require('./Model')
 const User = use('App/Models/User')
 const OrderItem = use('App/Models/OrderItem')
 const Event = use('Event')
+const Env = use('Env')
 
 module.exports = class Order extends Model {
 
@@ -86,7 +87,7 @@ module.exports = class Order extends Model {
       channel: this.payment_type,
       title: this.title,
       billno: this.no,
-      totalfee: this.total * 100,
+      totalfee: Env.get('TEST_PAY') ? 1 : this.total * 100,
       optional: {
         order_id: this._id
       }

@@ -79,41 +79,11 @@ module.exports = class Post extends Model {
     return decodeURI(this.uploadUri(val))
   }
 
-  async appendCollectionCount() {
-    const count = await this.actions().where({
-      name: 'collection'
-    }).count()
-    return count || 0
-  }
+  static boot() {
+    super.boot()
 
-  async appendIsBuy({ auth }) {
-    const user = auth.user
-    if (this.is_free) {
-      return true
-    }
-    if (!user) {
-      return false
-    }
-    const exist = await user.orderItems().where({
-      buyable_type: this.constructor.name,
-      buyable_id: this._id,
-      started_at: { ne: null }
-    }).count()
-    
-    return !!exist
-  }
-
-  async appendIsCollected({ auth }) {
-    const user = auth.user
-    if (!user) {
-      return false
-    }
-    const exist = await user.actions().where({
-      actionable_type: this.constructor.name,
-      actionable_id: this._id
-    }).count()
-    
-    return !!exist
+    this.addTrait('Appends')
+    this.addTrait('Actions')
   }
 
   course() {
@@ -121,7 +91,7 @@ module.exports = class Post extends Model {
   }
 
   //相关语音
-  posts() {
+  related() {
     return this.hasMany('App/Models/Post', 'course_id', 'course_id').listFields()
   }
 
@@ -139,10 +109,6 @@ module.exports = class Post extends Model {
 
   comments() {
     return this.morphMany('App/Models/Comment', 'commentable_type', 'commentable_id').with('user').orderBy('-_id')
-  }
-
-  actions() {
-    return this.morphMany('App/Models/Action', 'actionable_type', 'actionable_id')
   }
 
 }

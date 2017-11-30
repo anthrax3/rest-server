@@ -55,10 +55,10 @@ class Query {
         }
         query.where[k] = { gte: begin, lte: end }
         return
-      }
-      if (_.isString(v) && v.includes('regexp:')) {
+    }
+      if (_.isString(v) && v.includes('*')) {
 
-        query.where[k] = new RegExp(v.replace('regexp:', ''), 'i')
+        query.where[k] = new RegExp(v.replace('*', ''), 'i')
       }
       if (_.isArray(v) && !_.isObject(v[0])) {
         query.where[k] = { in: v }

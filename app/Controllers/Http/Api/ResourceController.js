@@ -5,6 +5,7 @@ const Helpers = use('Helpers')
 const Config = use('Config')
 const Drive = use('Drive')
 const inflection = require('inflection')
+const ObjectID = require('mongodb').ObjectID
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
 module.exports = class ResourceController {
@@ -22,6 +23,7 @@ module.exports = class ResourceController {
   async processQuery({ params, model, auth }, query) {
     switch (params.resource) {
       case 'courses':
+      case 'posts':
         query = await this.buildCoursesQuery(query)
         break;
     }
@@ -41,7 +43,7 @@ module.exports = class ResourceController {
     // console.log(Model.listFields);
     data = await this.processData(ctx, query, data)
     if (query.where.category) {
-      
+
     }
     const total = await Model.where(query.where).count() || 0
     const lastPage = Math.ceil(total / perPage)
@@ -55,25 +57,44 @@ module.exports = class ResourceController {
     }
   }
 
-  async show({ request, auth, Model, model }) {
+  async show({ request, auth, Model, model, params }) {
+    //修复专栏详情页评论user无法加载的bug
+    if (params.resource == 'courses') {
+      for (let comment of model.$relations.comments.rows) {
+        await comment.load('user')
+      }
+    }
+
+    //+pv
+    if (['courses', 'posts'].includes(params.resource)) {
+      await Model.query().where({
+        _id: model._id
+      }).update({
+        $inc: { pv: 1 }
+      })
+    }
     return model
   }
 
   async buildCoursesQuery(query) {
     const Category = use('App/Models/Category')
     const { category } = query.where || {}
+    let where = {}
     if (category) {
-      const parent = await Category.where({
-        key: category
-      }).with('children').firstOrFail()
+      if (category.length >= 24) {
+        where = { _id: ObjectID(category) }
+      } else {
+        where = { key: category }
+      }
+      const parent = await Category.query().where(where).with('children').firstOrFail()
 
       const ids = _.map(parent.toJSON().children, v => String(v._id))
       ids.push(String(parent._id))
       delete query.where.category
       query.where.category_ids = { in: ids }
-      
+
     }
-    
+
     return query
   }
 
@@ -94,12 +115,33 @@ module.exports = class ResourceController {
     const count = await model.collections().count()
     return {
       status: !action,
-      count: count
+      count: toNumber(count)
+    }
+  }
+
+  async like(ctx) {
+    const Action = use('App/Models/Action')
+    const { request, auth, Model, model } = ctx
+    const action = await model.likes().where({
+      user_id: auth.user._id
+    }).first()
+    if (!action) {
+      await model.actions().create({
+        name: 'like',
+        user_id: auth.user._id
+      })
+    } else {
+      await action.delete()
+    }
+    const count = await model.likes().count()
+    return {
+      status: !action,
+      count: toNumber(count)
     }
   }
 
   async comments({ request, Model, model, query }) {
-    return await model.comments().where({
+    return await model.comments().with(['user']).where({
       is_checked: true
     }).orderBy({
       is_top: -1,
