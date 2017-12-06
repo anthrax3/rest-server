@@ -4,6 +4,10 @@ const Model = require('./Model')
 const User = m('User')
 
 module.exports = class Voucher extends Model {
+  static get dates() {
+    return super.dates.concat(['used_at'])
+  }
+
   static get label() {
     return '兑换码'
   }
@@ -20,6 +24,11 @@ module.exports = class Voucher extends Model {
       source: { label: '来源', searchable: true },
 
       actions: {
+        toolbar: {
+          extra: [
+            {to: '/form?uri=vouchers/generate', label: '生成兑换码'}
+          ]
+        },
         buttons: {
           edit: false
         }
@@ -67,6 +76,9 @@ module.exports = class Voucher extends Model {
       payment_type: 'VOUCHER'
     }, items)
     await order.paid()
+    this.used_at = new Date
+    this.user_id = user._id
+    await this.save()
     return order
   }
 

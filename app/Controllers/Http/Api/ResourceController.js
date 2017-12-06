@@ -86,12 +86,9 @@ module.exports = class ResourceController {
       } else {
         where = { key: category }
       }
-      const parent = await Category.query().where(where).with('children').firstOrFail()
-
-      const ids = _.map(parent.toJSON().children, v => String(v._id))
-      ids.push(String(parent._id))
+      const parent = await Category.query().where(where).with('children.children').firstOrFail()
       delete query.where.category
-      query.where.category_ids = { in: ids }
+      query.where.category_ids = { in: parent.getSubIds() }
 
     }
 

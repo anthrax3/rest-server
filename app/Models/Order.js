@@ -97,17 +97,17 @@ module.exports = class Order extends Model {
   async paid() {
     const now = new Date
     this.paid_at = now
-    const items = await this.items().with(['user']).fetch()
+    const items = await this.items().fetch()
     for (let item of items.rows) {
       const buyable = await item.buyable().first()
+      const user = await item.user().first()
       switch (item.buyable_type) {
         case 'Course':
           item.started_at = now
           item.expired_at = new Date(now.valueOf() + 365 * 86400000)
           break
         case 'Charge':
-          const amount = Number(buyable.amount)
-          await item.user.addBalance('charge', add(buyable.amount, buyable.extra))
+          await user.addBalance('charge', add(buyable.amount, buyable.extra))
           
       }
 

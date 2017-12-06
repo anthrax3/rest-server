@@ -26,7 +26,7 @@ module.exports = class WalletLog extends Model {
     super.boot()
     this.addHook('afterCreate', async (model) => {
       const user = await model.user().first()
-      user.balance = Number(user.balance) + Number(model.amount)
+      user.balance = add(user.balance, model.amount)
       model.balance = user.balance
       await model.save()
       await user.save()

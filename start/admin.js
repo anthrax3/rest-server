@@ -19,6 +19,9 @@ Route.group(() => {
   Route.post('upload', 'Admin/SiteController.upload')
   Route.any('ueditor', 'Admin/UEditorController.handle')
 
+  Route.get('vouchers/generate', 'Admin/VoucherController.showGenerateForm')
+  Route.post('vouchers/generate', 'Admin/VoucherController.generate')
+
   Route.get(':resource/options', 'Admin/ResourceController.options')
   Route.get(':resource/grid', 'Admin/ResourceController.grid')
   Route.get(':resource/form', 'Admin/ResourceController.form')

@@ -64,7 +64,7 @@ module.exports = class UserController {
 
   async profile({ auth }) {
     const user = auth.current.user
-    await user.fetchAppends({}, ['profile_like_count', 'follow_count'])
+    await user.fetchAppends({}, ['like_count', 'follow_count'])
     return user
   }
 
@@ -174,12 +174,17 @@ module.exports = class UserController {
       'birthday',
       'mobile',
     ])
+    const file = request.file('avatar', Config.get('api.uploadParams', {}))
+    const fileData = await global.upload(request, 'avatar')
+    if (fileData) {
+      user.avatar = fileData.url
+    }
     await validate(data, {
       mobile: 'mobile'
     })
+    
     user.merge(data)
-    console.log(user);
-    // await user.save()
+    await user.save()
     return user
   }
 

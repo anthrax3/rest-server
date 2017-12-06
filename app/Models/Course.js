@@ -10,7 +10,7 @@ const Category = require('./Category')
 module.exports = class Course extends Model {
 
   static get computed() {
-    return super.computed.concat(['name'])
+    return super.computed.concat(['name', 'unit'])
   }
   static get objectIDs() {
     return ['_id', 'user_id']
@@ -101,6 +101,10 @@ module.exports = class Course extends Model {
 
   getName() {
     return this.title
+  }
+
+  getUnit() {
+    return '年'
   }
 
   getCover(val) {

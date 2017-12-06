@@ -29,6 +29,7 @@ module.exports = class Transform extends Command {
 
   async handle(args, options) {
     await db2.connect()
+
     // const tables = await db.raw('show tables')
 
     // await this.syncNews()
@@ -41,7 +42,7 @@ module.exports = class Transform extends Command {
     // await this.syncOauth()
     // await this.syncCourses()
     // await this.syncComments()
-    // await this.syncAds()
+    await this.syncAds()
 
     // await this.syncVouchers()
     // await this.syncOptions()
@@ -52,7 +53,7 @@ module.exports = class Transform extends Command {
     // await this.syncDevices()
 
     // await this.syncSms()
-    await this.syncCharges()
+    // await this.syncCharges()
 
     // await this.createIndexes()
 
@@ -103,16 +104,17 @@ module.exports = class Transform extends Command {
   }
 
   async syncCharges() {
-    const rate = 10
-    const prices = [6, 68, 168, 268, 368, 668]
+    const rate = 1
+    const prices = [6, 30, 68, 128, 238, 648]
     const charges = []
     for (let k in prices) {
       const price = prices[k]
       charges.push({
         title: `充值${price}元`,
+        iap_id: 'charge_' + (parseInt(k) + 1),
         price,
         amount: price * rate,
-        extra: parseInt(price * Math.pow(1.15, k))
+        extra: 0, //parseInt(price * Math.pow(1.15, k))
       })
     }
 
@@ -121,7 +123,10 @@ module.exports = class Transform extends Command {
 
   async syncOptions() {
     const book = await c('posts').where({
-      id: 17
+      title: '金融危机简史'
+    }).first()
+    const post = await c('posts').where({
+      title: '什么是资本运营？'
     }).first()
     const options = [
       {
@@ -140,11 +145,18 @@ module.exports = class Transform extends Command {
               "resource": "posts", "text": "title", "value": "_id", "where": { "is_book": true }
             }
           },
+          "home_free": {
+            "label": "首页听本书推荐", "type": "select", "multiple": true,
+            "ajaxOptions": {
+              "resource": "posts", "text": "title", "value": "_id", "where": { "is_book": true }
+            }
+          },
         }),
         data: {
           title: "一值财经",
           home_book: String(book._id),
-          books_book: String(book._id)
+          books_book: String(book._id),
+          home_free: [String(post._id)],
         }
       },
       {
@@ -230,6 +242,11 @@ module.exports = class Transform extends Command {
             url: '/rest/ads',
             icon: 'icon-camera',
           },
+          {
+            name: '充值价格',
+            url: '/rest/charges',
+            icon: 'icon-credit-card',
+          },
 
           {
             title: true,
@@ -268,7 +285,7 @@ module.exports = class Transform extends Command {
             name: '底层数据',
           },
           {
-            name: '设备',
+            name: '设备信息',
             url: '/rest/devices',
             icon: 'icon-screen-smartphone',
           },
@@ -285,7 +302,7 @@ module.exports = class Transform extends Command {
         ]
       },
       {
-        "_id": ObjectId("5a1b815a8f56ea5e8c414f42"),
+        "_id": ObjectID("5a1b815a8f56ea5e8c414f42"),
         "title": "站点配置",
         "name": "site",
         "fields": "{\"name\":{\"label\":\"站点名称\"},\"logo\": {\"type\":\"image\",\"label\":\"LOGO\"}}",
@@ -303,9 +320,12 @@ module.exports = class Transform extends Command {
   }
 
   async syncAds() {
-    let ads = await t('ads')
-    let adItems = await t('ad_items')
+    let ads = await t('ads').whereNull('deleted_at')
+    let adItems = await t('ad_items').whereNull('deleted_at')
     const newCourses = await this.list('courses')
+    const book = await c('posts').where({
+      is_book: true
+    }).first()
     adItems = _.groupBy(adItems, 'ad_id')
     _.map(ads, v => {
       v.items = adItems[v.id]
@@ -318,6 +338,17 @@ module.exports = class Transform extends Command {
           item.course_id = newCourses[course_id]
         }
       })
+    })
+    ads.push({
+      id: 5,
+      name: 'books_ads',
+      title: '书籍模块顶部广告',
+      items: [
+        {
+          "image" : "admin/images/536cc1523f3284e14cae94f38561e3af.jpeg",
+          "book_id": book._id,
+        }
+      ]
     })
     // console.log(ads);
 
@@ -352,23 +383,21 @@ module.exports = class Transform extends Command {
       { id: 100, name: '职场', key: 'b', parent_id: 1 },
       { id: 200, name: '用户', key: 'c', parent_id: 1 },
 
-      { name: '期货', parent_id: 100 },
-      { name: '证券', parent_id: 100 },
-      { name: '银行', parent_id: 100 },
-      { name: '外汇', parent_id: 100 },
-      { name: '基金', parent_id: 100 },
-      { name: '保险', parent_id: 100 },
-      { name: '信托', parent_id: 100 },
-      { name: 'P2P', parent_id: 100 },
+      { id: 101, name: '银行', parent_id: 100 },
+      { id: 102, name: '保险', parent_id: 100 },
 
-      { name: '期货', parent_id: 200 },
-      { name: '证券', parent_id: 200 },
-      { name: '银行', parent_id: 200 },
-      { name: '外汇', parent_id: 200 },
-      { name: '基金', parent_id: 200 },
-      { name: '保险', parent_id: 200 },
-      { name: '信托', parent_id: 200 },
-      { name: 'P2P', parent_id: 200 },
+      { id: 1001, name: '个金营销', parent_id: 101 },
+      { id: 1002, name: '对公营销', parent_id: 101 },
+      { id: 1003, name: '礼仪素养', parent_id: 101 },
+      { id: 1004, name: '私人银行', parent_id: 101 },
+      { id: 1005, name: '财务管理', parent_id: 101 },
+      { id: 1006, name: '服务营销', parent_id: 101 },
+      { id: 1007, name: '管理技巧', parent_id: 101 },
+
+      { id: 201, name: '货币', parent_id: 200 },
+      { id: 202, name: '证券', parent_id: 200 },
+      { id: 203, name: '基金', parent_id: 200 },
+      { id: 204, name: '投资理念', parent_id: 200 },
 
       { name: '视野', parent_id: 2 },
       { name: '理财', parent_id: 2 },
@@ -433,9 +462,10 @@ module.exports = class Transform extends Command {
   }
 
   async syncCourses() {
-    const courses = await t('courses')
-    const posts = await t('posts')
+    const courses = await t('courses').whereNull('deleted_at')
+    const posts = await t('posts').whereNull('deleted_at')
     const users = _.keyBy(await c('users').find(), 'id')
+    const categories = await this.list('categories', 'id', '_id')
     let assoc = await t('course_posts')
     assoc = _.keyBy(assoc, 'post_id')
 
@@ -445,10 +475,39 @@ module.exports = class Transform extends Command {
     }), 'priceable_id')
 
     _.map(courses, v => {
+      let cats = []
+      switch (v.id) {
+        case 12:
+          cats = [categories[1001]]
+          break;
+        case 19:
+          cats = [categories[1003]]
+          break;
+        case 10:
+          cats = [categories[1004]]
+          break;
+        case 16:
+          cats = [categories[201]]
+          break;
+        case 5:
+        case 15:
+          cats = [categories[202]]
+          break;
+        case 20:
+          cats = [categories[203]]
+          break;
+        case 17:
+        case 14:
+        case 18:
+          cats = [categories[204]]
+          break;
+
+      }
       try {
         v.title = v.name
         v.user_id = users[v.user_id]._id
         v.price = prices[v.id].price / 100
+        v.category_ids = cats
         delete v.name
       } catch (e) { }
 
@@ -485,9 +544,9 @@ module.exports = class Transform extends Command {
       delete v.created_at
       delete v.updated_at
       delete v.description
-      if (v.name == 'profession') {
-        v.name = 'trade'
-      }
+      // if (v.name == 'profession') {
+      //   v.name = 'trade'
+      // }
     })
 
     // console.dir(arrayToTree(props))
@@ -512,12 +571,12 @@ module.exports = class Transform extends Command {
           const ids = _.map(v, 'property_id')
 
           const position = _.get(_.find(newProps['position'].children, { id: ids[0] }), 'title', null)
-          const trade = _.get(_.find(newProps['trade'].children, { id: ids[1] }), 'title', null)
+          const profession = _.get(_.find(newProps['profession'].children, { id: ids[1] }), 'title', null)
 
           data.push({
             id: parseInt(k),
             position,
-            trade
+            profession
           })
 
         })
@@ -573,12 +632,16 @@ module.exports = class Transform extends Command {
   }
 
   async syncOrders() {
-    const orders = await t('orders')
+    const orders = await t('orders').whereNull('deleted_at')
     const users = _.keyBy(await c('users').find(), 'id')
     const courses = _.keyBy(await c('courses').find(), 'id')
     const posts = _.keyBy(await c('posts').find(), 'id')
     const items = await t('order_items')
-    _.map(items, (v) => {
+    _.map(items, (v, k) => {
+      if (!v) {
+        items.splice(k, 1)
+        return
+      }
       delete v.package_id
       delete v.price_id
 
@@ -587,10 +650,20 @@ module.exports = class Transform extends Command {
       let buyable_id = null
       switch (v.buyable_type) {
         case 'Course':
-          buyable_id = ObjectID(courses[v.buyable_id]._id)
+          const course = courses[v.buyable_id]
+          if (!course) {
+            items.splice(k, 1)
+            return
+          }
+          buyable_id = ObjectID(course._id)
           break;
         case 'Post':
-          buyable_id = ObjectID(posts[v.buyable_id]._id)
+          const post = posts[v.buyable_id]
+          if (!post) {
+            items.splice(k, 1)
+            return
+          }
+          buyable_id = ObjectID(post._id)
           break;
 
       }
@@ -648,20 +721,30 @@ module.exports = class Transform extends Command {
   }
 
   async syncComments() {
-    const items = await t('comments')
+    const items = await t('comments').whereNull('deleted_at')
     const users = _.keyBy(await c('users').find(), 'id')
     const courses = _.keyBy(await c('courses').find(), 'id')
     const posts = _.keyBy(await c('posts').find(), 'id')
 
-    _.map(items, (v) => {
+    _.map(items, (v, k) => {
       v.commentable_type = v.commentable_type.split('\\').pop()
       let commentable_id = null
       switch (v.commentable_type) {
         case 'Course':
-          commentable_id = ObjectID(courses[v.commentable_id]._id)
+          const course = courses[v.commentable_id]
+          if (!course) {
+            items.splice(k, 1)
+            return
+          }
+          commentable_id = ObjectID(course._id)
           break;
         case 'Post':
-          commentable_id = ObjectID(posts[v.commentable_id]._id)
+          const post = posts[v.commentable_id]
+          if (!post) {
+            items.splice(k, 1)
+            return
+          }
+          commentable_id = ObjectID(post._id)
           break;
 
       }

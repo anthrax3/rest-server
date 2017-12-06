@@ -7,6 +7,11 @@ const Oauth = use('App/Models/Oauth')
 const _ = require('lodash')
 
 module.exports = class User extends Model {
+  static get computed() {
+    return super.computed.concat([
+      'is_user',
+    ])
+  }
   static get hidden() {
     return ['password']
   }
@@ -57,6 +62,12 @@ module.exports = class User extends Model {
       ]
     }
   }
+
+  getRoleId(value){
+    return value || 2
+  }
+
+  
 
   static get listFields() {
     return '_id username nickname avatar'.split(' ')
@@ -196,12 +207,32 @@ module.exports = class User extends Model {
     return this.balance
   }
 
-  async appendProfileLikeCount() {
-    return this.actions().where({name: 'like'}).count()
+  getIsUser() {
+    return !this.role_id || this.role_id == 2
   }
-  
-  async appendFollowCount() {
-    return this.actions().where({name: 'follow'}).count()
+
+  getLikeCount(val){
+    return val || 0
+  }
+
+  getFollowCount(val){
+    return val || 0
+  }
+
+  getNoticeCount(val){
+    return val || 0
+  }
+
+  async appendIsFollowed({auth}) {
+    const user = auth.user
+    if (!user) {
+      return false
+    }
+    return await user.actions().where({
+      name: 'follow',
+      actionable_type: this.constructor.name,
+      actionable_id: this._id
+    }).count()
   }
 
 

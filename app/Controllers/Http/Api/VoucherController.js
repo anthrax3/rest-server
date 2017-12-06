@@ -15,13 +15,16 @@ module.exports = class VoucherController {
 
 
 
-  async active({ request, query }) {
+  async active({ request, query, auth }) {
     const { code, user_id } = request.all()
-    const model = await Voucher.findBy({ code })
+    const model = await Voucher.findBy({
+      code,
+      used_at: null
+    })
     if (!model) {
       throw new HttpException('无效的兑换码', 400)
     }
-    model.user_id = user_id
+    model.user_id = auth.user._id
     let order
     try {
       order = await model.active()
@@ -32,9 +35,13 @@ module.exports = class VoucherController {
     // for (let item of order.items) {
     //   item.buyable = item.morph().listFields().first()
     // }
+    let msg = '已兑换成功，请在已购买中查看'
+    if (model.object_type == 'Charge') {
+      msg = `兑换成功`
+    }
     return {
       order,
-      msg: '已兑换成功，请在已购买中查看',
+      msg,
       code: 200,
       success: true
     }

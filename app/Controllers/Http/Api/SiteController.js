@@ -1,12 +1,14 @@
 'use strict'
 
 const _ = require('lodash')
+const crypto = require('crypto')
 const Helpers = use('Helpers')
 const Config = use('Config')
 const Drive = use('Drive')
 const { HttpException } = require('@adonisjs/generic-exceptions')
 
 const User = use('App/Models/User')
+const Oauth = use('App/Models/Oauth')
 const Option = use('App/Models/Option')
 const Course = use('App/Models/Course')
 const Reading = use('App/Models/Reading')
@@ -22,24 +24,11 @@ module.exports = class SiteController {
 
   async upload({ request, response, auth }) {
 
-    const type = request.input('type')
-    const file = request.file('file', Config.get('api.uploadParams', {}))
-    let fileData = file.toJSON()
-    let uploadPath = Config.get('api.upload.path')
-    if (type) {
-      uploadPath += (uploadPath ? '/' : '') + type
-    }
-    let filePath = uploadPath + '/' + fileData.clientName
-    let fileUrl = Drive.getUrl(filePath)
-    try {
-      await Drive.put(filePath, fileData.tmpPath)
-    } catch (e) {
-      throw new HttpException(e.message, 400)
-    }
+    const fileData = await global.upload(request)
     return {
       title: fileData.clientName,
       state: "SUCCESS",
-      url: fileUrl
+      url: fileUrl.url
     }
   }
 
@@ -122,6 +111,24 @@ module.exports = class SiteController {
     }
   }
 
+  //游客注册
+  async guest({ request, auth }) {
+    const { did } = request.all()
+    await validate(request.all(), {
+      did: 'required'
+    })
+    const user = await User.findOrCreate({
+      did
+    }, {
+        did,
+        role_id: 1,
+        username: 'guest' + crypto.randomBytes(3).toString('hex')
+      })
+    const token = await auth.generate(user)
+    token.user = user
+    return token
+  }
+
   async register({ request, auth }) {
     const data = request.all()
     const { mobile, password } = data
@@ -143,6 +150,36 @@ module.exports = class SiteController {
     } catch (e) {
       throw new HttpException('注册失败', 500)
     }
+    const token = await auth.generate(user)
+    token.user = user
+    return token
+  }
+
+  async authLogin({ request, auth }) {
+    const { openid } = request.all()
+    const oauth = await Oauth.findBy({ openid })
+    if (!oauth) {
+      return {}
+    }
+    const user = await oauth.user().first()
+    const token = await auth.generate(user)
+    token.user = user
+    return token
+  }
+
+  async authRegister({ request, auth }) {
+    const data = request.all()
+    const { openid, type } = data
+    const oauth = await Oauth.findOrCreate({ 
+      openid
+    }, data)
+    
+    const user = await User.create({
+      username: type + crypto.randomBytes(4).toString('hex'),
+      role_id: 2
+    })
+    oauth.user_id = user._id
+    await oauth.save()
     const token = await auth.generate(user)
     token.user = user
     return token
@@ -182,23 +219,23 @@ module.exports = class SiteController {
 
   async addDevice({ request, auth }) {
     const Device = m('Device')
-    const data = request.only([
-      'os','did','model','width','version','name'
-    ])
+    const data = request.all()
     await validate(data, {
       did: 'required'
     })
     let model = await Device.findBy('did', data.did)
-    if (model) {
-      return model
+    if (!model) {
+      model = new Device()
     }
-    model = new Device(data)
-    model.user_id = auth._id
+    model.merge(data)
+    if (auth.user) {
+      model.user_id = auth.user._id
+    }
     await model.save()
     return model
   }
 
-  async properties(){
+  async properties() {
     const properties = await m('Property').fetch()
     return _.mapValues(_.keyBy(properties.toJSON(), 'name'), 'children')
   }

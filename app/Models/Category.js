@@ -46,6 +46,11 @@ module.exports = class Category extends Model {
     }
   }
 
+  getSubIds() {
+    const cat = this
+    return _.flatMapDeep(cat.toJSON().children, v => _.map(v.children, '_id').concat(v._id)).concat(cat._id)
+  }
+
   parent() {
     return this.belongsTo('App/Models/Category', 'parent_id', '_id')
   }

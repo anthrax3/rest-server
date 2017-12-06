@@ -49,9 +49,19 @@ module.exports = class Appends {
       if (!user) {
         return false
       }
-      const exist = await user.orderItems().where({
-        buyable_type: this.constructor.name,
-        buyable_id: String(this._id),
+      let buyableWhere = [
+        {
+          buyable_type: this.constructor.name,
+          buyable_id: this._id,
+        }
+      ]
+      if (this.constructor.name == 'Post') {
+        buyableWhere.push({
+          buyable_type: 'Course',
+          buyable_id: this.course_id,
+        })
+      }
+      const exist = await user.orderItems().or(buyableWhere).where({
         paid_at: { ne: null }
       }).count()
   

@@ -15,6 +15,7 @@ Route.group(() => {
   Route.post('orders/create', 'Api/OrderController.create')
   Route.post('iap', 'Api/PaymentController.verifyIap')
   Route.get('profile', 'Api/UserController.profile')
+  Route.put('profile', 'Api/UserController.update')
   Route.get('users/:id/likes', 'Api/UserController.likes')
   Route.get('users/:id/follows', 'Api/UserController.follows')
   Route.post('actions', 'Api/UserController.action')
@@ -32,7 +33,7 @@ Route.group(() => {
 
   Route.get('comments/messages', 'Api/UserController.comments')
   Route.get('collections/:type', 'Api/UserController.collections')
-  Route.post(':follows/:id', 'Api/UserController.follow')
+  Route.post('follows/:id', 'Api/UserController.follow')
   Route.post(':resource/:id/collections', 'Api/ResourceController.collect')
   Route.post(':resource/:id/likes', 'Api/ResourceController.like')
   Route.post(':resource/:id/comments', 'Api/ResourceController.comment')
@@ -60,6 +61,11 @@ Route.group(() => {
 
   Route.post('login', 'Api/SiteController.login')
   Route.post('register', 'Api/SiteController.register')
+
+  Route.post('authLogin', 'Api/SiteController.authLogin')
+  Route.post('authRegister', 'Api/SiteController.authRegister')
+
+  Route.post('guest', 'Api/SiteController.guest')
   Route.post('checkMobileExist', 'Api/SiteController.checkMobileExist')
   Route.post('captcha', 'Api/SiteController.captcha')
   Route.post('devices', 'Api/SiteController.addDevice')

@@ -13,7 +13,8 @@ class Query {
     console.log(
       request.method(),
       request.url(),
-      request.all()
+      request.all(),
+      // request.header('authorization')
 
     );
     // call next to advance the request

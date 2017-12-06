@@ -61,6 +61,9 @@ async function main() {
   // }).catch(({response}) => {
   //   console.log(response.data);
   // })
+  // const cat = await m('Category').where('key', 'course').with('children.children.children').first()
+  // log(cat.getSubIds())
+  // log(cats.toJSON())
 }
 // main()
 

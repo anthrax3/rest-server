@@ -23,13 +23,14 @@ class ExceptionHandler {
       request.method(),
       request.url(),
       request.all(),
-      error
-    );
+      // error
+    ); 
     switch (error.name) {
       case 'ModelNotFoundException':
-        error.message = '数据不存在'
+        error.message = '数据不存在' 
         break
     }
+    console.log(error);
     response.status(error.status).send({
       code: error.code,
       name: error.name,

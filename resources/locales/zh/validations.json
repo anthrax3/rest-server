@@ -41,5 +41,6 @@
   "starts_with": "{{field}}有误",
   "string": "{{field}}有误",
   "under": "{{field}}有误",
+  "between": "{{field}}有误",
   "url": "{{field}}有误"
 }
