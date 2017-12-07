@@ -12,13 +12,18 @@ const arrayToTree = require("array-to-tree")
 
 module.exports = class Model extends BaseModel {
 
+  static get fillable() {
+    return _.reject(_.keys(this.fields), v => {
+      return ['_id', 'id'].includes(v) || v.includes('.')
+    })
+  }
   // static get iocHooks () {
   //   return ['_bootIfNotBooted']
   //   // return ['_bootIfNotBooted', 'buildOptions']
   // }
 
   static get computed() {
-    return ['id']
+    return []
   }
 
   static get objectIDs() {
@@ -107,6 +112,11 @@ module.exports = class Model extends BaseModel {
 
   rules() {
     return {}
+  }
+
+  merge(data){
+    const newData = _.pickBy(data, (v, k) => this.constructor.fillable.includes(k))
+    return super.merge.call(this, newData)
   }
 
   uploadUri(val) {

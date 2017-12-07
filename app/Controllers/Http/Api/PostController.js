@@ -16,9 +16,9 @@ module.exports = class PostController extends BaseController {
     const { params, query } = ctx
     const recommend = await Option.get('recommend')
     const ids = recommend[params.name]
-    let whereId = recommend[params.name]
+    let whereId = ids
     if (_.isArray(ids)) {
-      whereId = { in: recommend[params.name] }
+      whereId = { in: ids }
     }
     const finder = Post.query(query).listFields().where({
       _id: whereId
@@ -34,10 +34,6 @@ module.exports = class PostController extends BaseController {
       await post.fetchAppends(ctx, ['is_buy'])
       return post
     }
-
-  }
-
-  async comments({ request, query }) {
 
   }
 

@@ -399,14 +399,14 @@ module.exports = class Transform extends Command {
       { id: 203, name: '基金', parent_id: 200 },
       { id: 204, name: '投资理念', parent_id: 200 },
 
-      { name: '视野', parent_id: 2 },
-      { name: '理财', parent_id: 2 },
-      { name: '职业', parent_id: 2 },
+      { id: 21, name: '视野', parent_id: 2 },
+      { id: 22, name: '理财', parent_id: 2 },
+      { id: 23, name: '职业', parent_id: 2 },
 
-      { name: '程序bug', parent_id: 3 },
-      { name: '功能建议', parent_id: 3 },
-      { name: '行情相关', parent_id: 3 },
-      { name: '其他', parent_id: 3 },
+      { id: 31, name: '程序bug', parent_id: 3 },
+      { id: 32, name: '功能建议', parent_id: 3 },
+      { id: 33, name: '行情相关', parent_id: 3 },
+      { id: 34, name: '其他', parent_id: 3 },
     ]
 
     await this.insert('categories', cats)
@@ -461,11 +461,44 @@ module.exports = class Transform extends Command {
     await this.insert('readings', readings)
   }
 
+  async syncCategoryIds() {
+    const categories = await this.list('categories', 'id', '_id')
+    const courses = await c('courses')
+    const posts = await c('posts')
+    
+    switch (v.id) {
+      case 12:
+        cats = [categories[1001]]
+        break;
+      case 19:
+        cats = [categories[1003]]
+        break;
+      case 10:
+        cats = [categories[1004]]
+        break;
+      case 16:
+        cats = [categories[201]]
+        break;
+      case 5:
+      case 15:
+        cats = [categories[202]]
+        break;
+      case 20:
+        cats = [categories[203]]
+        break;
+      case 17:
+      case 14:
+      case 18:
+        cats = [categories[204]]
+        break;
+
+    }
+  }
+
   async syncCourses() {
     const courses = await t('courses').whereNull('deleted_at')
     const posts = await t('posts').whereNull('deleted_at')
     const users = _.keyBy(await c('users').find(), 'id')
-    const categories = await this.list('categories', 'id', '_id')
     let assoc = await t('course_posts')
     assoc = _.keyBy(assoc, 'post_id')
 
@@ -476,38 +509,11 @@ module.exports = class Transform extends Command {
 
     _.map(courses, v => {
       let cats = []
-      switch (v.id) {
-        case 12:
-          cats = [categories[1001]]
-          break;
-        case 19:
-          cats = [categories[1003]]
-          break;
-        case 10:
-          cats = [categories[1004]]
-          break;
-        case 16:
-          cats = [categories[201]]
-          break;
-        case 5:
-        case 15:
-          cats = [categories[202]]
-          break;
-        case 20:
-          cats = [categories[203]]
-          break;
-        case 17:
-        case 14:
-        case 18:
-          cats = [categories[204]]
-          break;
-
-      }
+      
       try {
         v.title = v.name
         v.user_id = users[v.user_id]._id
         v.price = prices[v.id].price / 100
-        v.category_ids = cats
         delete v.name
       } catch (e) { }
 

@@ -3,6 +3,13 @@ const Route = use('Route')
 //需要登录的mine路由
 Route.group(() => {
   Route.get('orders', 'Api/UserController.orders')
+  Route.get('comments', 'Api/UserController.comments')
+  Route.get('collections/:type', 'Api/UserController.collections')
+  Route.get('likes', 'Api/UserController.likes')
+  Route.get('follows', 'Api/UserController.follows')
+  
+  Route.post('actions', 'Api/UserController.action')
+  // Route.post('users', 'Api/UserController.update')
 
 }).prefix('api/mine').middleware([
   // 'authenticator:jwt',
@@ -12,15 +19,11 @@ Route.group(() => {
 
 //需要登录
 Route.group(() => {
-  Route.post('orders/create', 'Api/OrderController.create')
+  Route.post('orders', 'Api/OrderController.create')
   Route.post('iap', 'Api/PaymentController.verifyIap')
+
   Route.get('profile', 'Api/UserController.profile')
   Route.put('profile', 'Api/UserController.update')
-  Route.get('users/:id/likes', 'Api/UserController.likes')
-  Route.get('users/:id/follows', 'Api/UserController.follows')
-  Route.post('actions', 'Api/UserController.action')
-  Route.post('users', 'Api/UserController.update')
-  
 }).prefix('api').middleware([
   // 'authenticator:jwt',
   'auth:jwt',
@@ -31,8 +34,7 @@ Route.group(() => {
 //必须登录的资源路由
 Route.group(() => {
 
-  Route.get('comments/messages', 'Api/UserController.comments')
-  Route.get('collections/:type', 'Api/UserController.collections')
+  
   Route.post('follows/:id', 'Api/UserController.follow')
   Route.post(':resource/:id/collections', 'Api/ResourceController.collect')
   Route.post(':resource/:id/likes', 'Api/ResourceController.like')

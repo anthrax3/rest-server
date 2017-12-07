@@ -64,6 +64,7 @@ async function main() {
   // const cat = await m('Category').where('key', 'course').with('children.children.children').first()
   // log(cat.getSubIds())
   // log(cats.toJSON())
+
 }
 // main()
 

@@ -16,7 +16,6 @@ global.validate = async function (data, rules, messages, labels) {
   if (validation.fails()) {
     let errorMessages = _.each(validation.messages(), v => {
       v.message = String(v.message).replace(v.field, labels[v.field] || v.field)
-      // console.log(v);
       return v
     })
     throw new HttpException(errorMessages, 422)
@@ -31,17 +30,18 @@ global.upload = async function (request, key = 'file', typeName = 'type')  {
     return
   }
   let fileData = file.toJSON()
-  let uploadPath = Config.get('api.upload.path')
-  if (type) {
-    uploadPath += (uploadPath ? '/' : '') + type
-  }
-  let filePath = uploadPath + '/' + fileData.clientName
-  let fileUrl = Drive.getUrl(filePath)
+  let filePath = `/${type ? type + '/' : ''}${fileData.clientName}`
+  
   try {
     await Drive.put(filePath, fileData.tmpPath)
   } catch (e) {
     throw new HttpException(e.message, 400)
   }
+
+  let fileUrl = filePath
+  try {
+    fileUrl = Drive.getUrl(filePath)
+  } catch (e) {}
   fileData.url = fileUrl
   return fileData
 }

@@ -37,7 +37,7 @@ module.exports = class UserController {
       buyable_id: { ne: null },
     })
     if (buyable_type) {
-      finder.where({buyable_type})
+      finder.where({ buyable_type })
     }
     const data = await finder.orderBy('-_id').paginate(query.page, query.perPage || 5)
 
@@ -53,7 +53,7 @@ module.exports = class UserController {
       }
       row.buyable = await query.first()
     }
-    return data.toJSON()
+    return data
   }
 
   async show({ params }) {
@@ -93,18 +93,16 @@ module.exports = class UserController {
       name: 'collection',
       actionable_type: inflection.classify(params.type)
     }).paginate(query.page, query.perPage)
-    const newRows = []
     for (let row of data.rows) {
       switch (row.actionable_type) {
         case 'Post':
-        newRows.push(await row.morphQuery().listFields().with(['course', 'user']).first())
+          row = await row.morphQuery().listFields().with(['course', 'user']).first()
           break
         case 'Course':
-        newRows.push(row = await row.morphQuery().listFields().with(['post', 'user']).first())
+          row = await row.morphQuery().listFields().with(['post', 'user']).first()
           break
       }
     }
-    data.rows = newRows
     return data
 
   }
@@ -113,21 +111,19 @@ module.exports = class UserController {
     const data = await auth.current.user.actions().where({
       name: 'follow',
     }).paginate(query.page, query.perPage)
-    const newRows = []
     for (let row of data.rows) {
       switch (row.actionable_type) {
         case 'Post':
-          newRows.push(await row.morphQuery().listFields().with(['course', 'user']).first())
+          row = await row.morphQuery().listFields().with(['course', 'user']).first()
           break
         case 'Course':
-          newRows.push(await row.morphQuery().listFields().with(['post', 'user']).first())
+          row = await row.morphQuery().listFields().with(['post', 'user']).first()
           break
         case 'User':
-          newRows.push(await row.morphQuery().listFields().first())
+          row = await row.morphQuery().listFields().first()
           break
       }
     }
-    data.rows = newRows
     return data
   }
 
@@ -150,11 +146,11 @@ module.exports = class UserController {
   }
 
 
-  async resetPassword({request, auth}) {
+  async resetPassword({ request, auth }) {
     const data = request.only([
       'mobile', 'password'
     ])
-    const user = await User.findOrFail({mobile: data.mobile})
+    const user = await User.findOrFail({ mobile: data.mobile })
     user.password = data.password
     await user.save()
     const token = await auth.generate(user)
@@ -162,27 +158,28 @@ module.exports = class UserController {
     return token
   }
 
-  async update({request, auth}) {
+  async update({ request, auth }) {
     const user = auth.current.user
     const data = request.only([
-      'position', 
+      'position',
       'invitationCode',
 
       'username',
       'profession',
       'introduction',
       'birthday',
-      'mobile',
+      // 'mobile',
     ])
     const file = request.file('avatar', Config.get('api.uploadParams', {}))
     const fileData = await global.upload(request, 'avatar')
     if (fileData) {
       user.avatar = fileData.url
     }
-    await validate(data, {
-      mobile: 'mobile'
-    })
-    
+    if (data.mobile) {
+      await validate(data, {
+        mobile: 'mobile'
+      })
+    }
     user.merge(data)
     await user.save()
     return user
@@ -207,7 +204,7 @@ module.exports = class UserController {
     } else {
       await action.delete()
     }
-    const count = await user.actions().where({name}).count()
+    const count = await user.actions().where({ name }).count()
     return {
       status: !action,
       count: toNumber(count)

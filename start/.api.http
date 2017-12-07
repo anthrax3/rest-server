@@ -3,7 +3,8 @@
 @json = Content-Type: application/json
 @ajson = Accept: application/json
 //3042
-@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTI2NjBiOWM4ODAwZjQwMjgzMmJkMTkiLCJpYXQiOjE1MTI0NjUxNTV9.nLLa3JgIyXn50XJ6tktYqth-PoW5Lfov8cmZb4M2VZY
+@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTI0ZWIzNjU5MDU3MjMxMmMyZmZmY2EiLCJpYXQiOjE1MTI2MzQyMjJ9.msqp6HiA1tvlr4VPrY5FPioO245ZKUy1VgjADYLxPd8
+
 //3041
 //@auth = Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI1YTE1MTU5NjZjZjdhMjVkNTAyN2JkZWMiLCJpYXQiOjE1MTE0MTc0MDl9.J8vsKUlHMs6X3YokBDBFAyvOW2M-BAe9wT5aX_lY6lk
 //3040
@@ -114,9 +115,9 @@ POST {{uri}}/orders/create
 {{auth}}
 
 {
-  "buyable_type": "Charge",
-  "payment_type": "ALI_APP",
-  "buyable_id": "5a17ac4392907b2b3cf923f9"
+  "buyable_type": "Post",
+  "payment_type": "WALLET",
+  "buyable_id": "5a251650469e89186826fe74"
 }
 # {
 #   "buyable_type": "Course",
@@ -147,16 +148,16 @@ POST {{uri}}/devices
 GET {{uri}}/comments/messages
 {{auth}}
 ###
-GET {{uri}}/collections/courses
+GET {{uri}}/mine/collections/courses
 {{auth}}
 ###
-GET {{uri}}/users/1/likes
+GET {{uri}}/mine/likes
 {{auth}}
 ###
-GET {{uri}}/users/1/follows
+GET {{uri}}/mine/follows
 {{auth}}
 ###
-POST {{uri}}/users/1
+POST {{uri}}/profile
 {{auth}}
 {{json}}
 

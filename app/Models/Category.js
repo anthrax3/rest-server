@@ -1,6 +1,7 @@
 'use strict'
 
 const Model = require('./Model')
+const ObjectID = require('mongodb').ObjectID
 
 module.exports = class Category extends Model {
 
@@ -47,8 +48,13 @@ module.exports = class Category extends Model {
   }
 
   getSubIds() {
-    const cat = this
-    return _.flatMapDeep(cat.toJSON().children, v => _.map(v.children, '_id').concat(v._id)).concat(cat._id)
+    return _.map(
+      _.flatMapDeep(
+        this.toJSON().children, 
+        v => _.map(v.children, '_id').concat(v._id)
+      ).concat(this._id), 
+      ObjectID
+    )
   }
 
   parent() {

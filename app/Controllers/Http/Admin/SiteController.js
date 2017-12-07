@@ -86,37 +86,11 @@ module.exports = class SiteController {
 
   async upload({ request, response, auth }) {
 
-    const type = request.input('type')
-    const file = request.file('file', {
-      types: ['image', 'audio', 'video'],
-      size: '100mb'
-    })
-    let fileData = file.toJSON()
-    let uploadPath = Config.get('api.upload.path')
-    if (type) {
-      uploadPath += (uploadPath ? '/' : '') + type
-    }
-    let filePath = uploadPath + '/' + fileData.clientName
-    // let fileUrl = Config.get('api.upload.url') + '/' + fileData.clientName
-    let fileUrl = Drive.getUrl(filePath)
-    try {
-      await Drive.put(filePath, fileData.tmpPath)
-    } catch (e) {
-      throw new HttpException(e.message, 400)
-    }
-
-    // if (fs.existsSync(filePath)) {
-    //   fs.unlinkSync(filePath)
-    // }
-    // console.log(fileData);
-    // await file.move(uploadPath)
-    // if (!file.moved()) {
-    //   throw new HttpException(file.error(), 400)
-    // }
+    const fileData = await global.upload(request)
     return {
       title: fileData.clientName,
       state: "SUCCESS",
-      url: fileUrl
+      url: fileData.url
     }
   }
 
