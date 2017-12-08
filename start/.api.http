@@ -45,6 +45,10 @@ POST {{uri}}/login
   "password": "123456"
 }
 ###
+GET {{uri}}/activities
+{{auth}}
+
+###
 GET {{uri}}/profile
 {{auth}}
 
