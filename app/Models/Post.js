@@ -82,6 +82,9 @@ module.exports = class Post extends Model {
   static boot() {
     super.boot()
 
+    this.addGlobalScope((query) => {
+      query.sort('-_id')
+    })
     this.addTrait('Appends')
     this.addTrait('Actions')
   }

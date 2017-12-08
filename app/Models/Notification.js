@@ -4,7 +4,7 @@ const Model = require('./Model')
 
 module.exports = class Push extends Model {
   static get label() {
-    return '推送记录'
+    return '通知'
   }
   static get fields() {
     return {

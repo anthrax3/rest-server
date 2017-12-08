@@ -85,6 +85,10 @@ module.exports = class Course extends Model {
   static boot() {
     super.boot()
 
+    this.addGlobalScope((query) => {
+      query.sort('-_id')
+    })
+    
     this.addTrait('Appends')
     this.addTrait('Actions')
     // this.addTrait('Uploads', ['cover', 'image'])
@@ -154,7 +158,7 @@ module.exports = class Course extends Model {
       title = this.title
     }
     Push.send(to, title, {
-      winName: 'yizhisay-list',
+      winName: 'course',
       pageParams: {
         id: String(this._id),
         from: 'push'

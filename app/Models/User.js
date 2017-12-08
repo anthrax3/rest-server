@@ -79,6 +79,9 @@ module.exports = class User extends Model {
 
   static boot() {
     super.boot()
+
+    this.addTrait('Appends')
+    // this.addTrait('Actions')
     this.addHook('beforeCreate', 'User.hashPassword')
     this.addHook('beforeUpdate', 'User.hashPassword')
   }
@@ -211,17 +214,17 @@ module.exports = class User extends Model {
     return !this.role_id || this.role_id == 2
   }
 
-  getLikeCount(val){
-    return val || 0
-  }
+  // getLikeCount(val){
+  //   return val || 0
+  // }
 
-  getFollowCount(val){
-    return val || 0
-  }
+  // getFollowCount(val){
+  //   return val || 0
+  // }
 
-  getNoticeCount(val){
-    return val || 0
-  }
+  // getNoticeCount(val){
+  //   return val || 0
+  // }
 
   async appendIsFollowed({auth}) {
     const user = auth.user

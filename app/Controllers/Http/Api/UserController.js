@@ -63,7 +63,7 @@ module.exports = class UserController {
   }
 
   async profile({ auth }) {
-    const user = auth.current.user
+    const user = auth.user
     await user.fetchAppends({}, ['like_count', 'follow_count'])
     return user
   }

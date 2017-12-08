@@ -40,6 +40,13 @@ module.exports = class Appends {
       }).count()
       return count || 0
     }
+
+    Model.prototype.appendFollowCount = async function() {
+      const count = await this.actions().where({
+        name: 'follow'
+      }).count()
+      return count || 0
+    }
   
     Model.prototype.appendIsBuy = async function({ auth }) {
       const user = auth.user
